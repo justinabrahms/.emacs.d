@@ -1,3 +1,6 @@
 [submodule "submodules/magit"]
 	path = submodules/magit
 	url = git://github.com/philjackson/magit.git
+[submodule "vendor/epackage"]
+	path = vendor/epackage
+	url = git://git.sv.gnu.org/emacs-epackage.git
