@@ -69,6 +69,15 @@
   (interactive)
   (browse-url (concat "http://www.google.com/search?q=define:+" (thing-at-point 'word))))
 
+(defun nose (venv-name)
+  "Runs nose on the current buffer using a particular virtualenv"
+  ; @@@ TODO: set DJANGO_SETTINGS_MODULE somehow automatically
+  (interactive "sVirtualenv: ")
+  (compile (concat "DJANGO_SETTINGS_MODULE=\"dashboard.settings\" "
+		   "/home/" user-login-name "/.virtualenvs/" venv-name "/bin/nosetests "
+		   buffer-file-name)))
+
+
 ;;; epackage.el
 ;; One big file to boot all installed packages
 ;; Automatically generated. Do not edit.
