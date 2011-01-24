@@ -51,7 +51,6 @@
        '(("\\.textile" . textile-mode)
 	 ("\\.bashrc" . sh-mode))
        auto-mode-alist))
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; paredit?
 ;; tempfiles, stolen from github://defunkt/emacs
@@ -62,6 +61,14 @@
       backup-directory-alist `(("." . ,user-temporary-file-directory))
       auto-save-list-file-prefix (concat user-temporary-file-directory ".auto-saves-")
       auto-save-file-name-transforms `((".*" ,user-temporary-file-directory)))
+
+;;; hooks
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook 'dired-load-hook (lambda ()
+			     (load "dired-x")))
+(add-hook 'dired-mode-hook (lambda ()
+			     (dired-omit-mode 1)))
+
 
 ;;; fun bits
 (defun dictionary ()
