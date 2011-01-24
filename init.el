@@ -63,6 +63,12 @@
       auto-save-list-file-prefix (concat user-temporary-file-directory ".auto-saves-")
       auto-save-file-name-transforms `((".*" ,user-temporary-file-directory)))
 
+;;; fun bits
+(defun dictionary ()
+  "Opens a web page to define the word at point."
+  (interactive)
+  (browse-url (concat "http://www.google.com/search?q=define:+" (thing-at-point 'word))))
+
 ;;; epackage.el
 ;; One big file to boot all installed packages
 ;; Automatically generated. Do not edit.
