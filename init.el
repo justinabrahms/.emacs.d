@@ -15,6 +15,9 @@
 (menu-bar-mode -1) ;; minimal chrome
 (if (functionp tool-bar-mode)
     (tool-bar-mode -1))
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
+
 ;;; erc
 ;; by default, erc alerts you on any activity. I only want to hear
 ;; about mentions of nick or keyword
