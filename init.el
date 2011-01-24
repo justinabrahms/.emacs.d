@@ -1,3 +1,8 @@
+;;; desires
+;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
+;; optional java dev environment. Doesn't load at startup, but is loaded via M-x start-jde
+;; do I want paredit?
+
 ;; Vim style keyboard moving
 (global-set-key (kbd "C-M-l") 'windmove-right)
 (global-set-key (kbd "C-M-h") 'windmove-left)
@@ -55,7 +60,6 @@
 	 ("\\.bashrc" . sh-mode))
        auto-mode-alist))
 
-;; paredit?
 ;; tempfiles, stolen from github://defunkt/emacs
 (defvar user-temporary-file-directory
   (concat temporary-file-directory user-login-name "/"))
