@@ -15,6 +15,16 @@
 (menu-bar-mode -1) ;; minimal chrome
 (if (functionp tool-bar-mode)
     (tool-bar-mode -1))
+;;; erc
+;; by default, erc alerts you on any activity. I only want to hear
+;; about mentions of nick or keyword
+(setq erc-current-nick-highlight-type 'all)
+(setq erc-keywords '("gencal"))
+(setq erc-track-exclude-types '("JOIN" "PART" "NICK" "MODE" "QUIT"))
+(setq erc-track-use-faces t)
+(setq erc-track-faces-priority-list
+      '(erc-current-nick-face erc-keyword-face))
+(setq erc-track-priority-faces-only 'all)
 
 ;; javascript
 (setq js-indent-level 2)
