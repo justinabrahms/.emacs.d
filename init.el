@@ -85,7 +85,8 @@
 (defun dictionary ()
   "Opens a web page to define the word at point."
   (interactive)
-  (browse-url (concat "http://www.google.com/search?q=define:+" (thing-at-point 'word))))
+  (let ((word (prompt-with-default-as-region "word: ")))
+    (browse-url (concat "http://www.google.com/search?q=define:+" word))))
 
 (defun nose (venv-name)
   "Runs nose on the current buffer using a particular virtualenv"
