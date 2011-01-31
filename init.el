@@ -24,6 +24,7 @@
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
+(setq abbrev-file-name "~/.emacs.d/abbrev_defs")
 (load-theme 'tsdh-dark)
 
 (defun prompt-with-default-as-region (prompt)
