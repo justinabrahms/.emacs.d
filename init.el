@@ -24,6 +24,8 @@
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
+(load-theme 'tsdh-dark)
+
 (defun prompt-with-default-as-region (prompt)
   "Prompts with the PROMPT, prefilling the value with the region
   if active"
