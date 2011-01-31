@@ -21,7 +21,7 @@
 (tool-bar-mode -1) ;; no toolbar
 (scroll-bar-mode -1) ;; disable scroll bars
 (setq-default truncate-lines 1)
-
+(desktop-save-mode 1) ;; auto-save desktop state for a later time.
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
 (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
