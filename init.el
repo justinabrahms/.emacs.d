@@ -77,7 +77,9 @@
 			     (load "dired-x")))
 (add-hook 'dired-mode-hook (lambda ()
 			     (dired-omit-mode 1)))
-
+(add-hook 'java-mode-hook (lambda ()
+			    (setq c-basic-offset 2)
+			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 
 ;;; fun bits
 (defun dictionary ()
