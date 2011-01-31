@@ -24,6 +24,13 @@
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
+(defun prompt-with-default-as-region (prompt)
+  "Prompts with the PROMPT, prefilling the value with the region
+  if active"
+  (let ((default (if (and transient-mark-mode mark-active)
+		    (buffer-substring-no-properties (region-beginning) (region-end))
+		  nil)))
+    (read-string prompt default)))
 
 ;;; erc
 ;; by default, erc alerts you on any activity. I only want to hear
