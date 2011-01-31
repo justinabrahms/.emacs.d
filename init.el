@@ -106,29 +106,5 @@
 		   "/home/" user-login-name "/.virtualenvs/" venv-name "/bin/nosetests "
 		   buffer-file-name)))
 
-
-;;; epackage.el
-;; One big file to boot all installed packages
-;; Automatically generated. Do not edit.
-(add-to-list 'load-path "~/.emacs.d/vendor/epackage/")
-(load "~/.emacs.d/00conf/epackage-loader" 'noerr)
-
-;;  M-x epackage to start package manager
-(autoload 'epackage "epackage" "" t)
-
-(autoload 'epackage-loader-file-byte-compile    "epackage" "" t)
-(autoload 'epackage-loader-file-generate        "epackage" "" t)
-(autoload 'epackage-cmd-autoload-package        "epackage" "" t)
-(autoload 'epackage-cmd-enable-package          "epackage" "" t)
-(autoload 'epackage-cmd-disable-package         "epackage" "" t)
-(autoload 'epackage-cmd-activate-package        "epackage" "" t)
-(autoload 'epackage-cmd-deactivate-package      "epackage" "" t)
-(autoload 'epackage-cmd-clean-package           "epackage" "" t)
-(autoload 'epackage-cmd-remove-package          "epackage" "" t)
-(autoload 'epackage-cmd-upgrade-package         "epackage" "" t)
-(autoload 'epackage-cmd-upgrade-all-packages    "epackage" "" t)
-(autoload 'epackage-cmd-download-sources-list   "epackage" "" t)
-(autoload 'epackage-cmd-download-package        "epackage" "" t)
-(autoload 'epackage-initialize                  "epackage" "" t)
-(autoload 'epackage-version                     "epackage" "" t)
-(autoload 'epackage-documentation               "epackage" "" t)
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/"))
