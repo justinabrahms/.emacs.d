@@ -114,3 +114,5 @@
 
 (add-to-list 'package-archives
 	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
