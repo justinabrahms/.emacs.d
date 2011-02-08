@@ -92,24 +92,54 @@
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 
 ;;; fun bits
+(setq VENV-BASE "/home/justinlilly/.virtualenvs/")
+(defun add-to-PATH (dir)
+  ; taken from https://github.com/dreid/emacs-config/blob/master/dreid/paths.el
+  "Add the specified path element to the Emacs PATH"
+  (interactive "DEnter a directory to be added to PATH: ")
+  (if (file-directory-p dir)
+      (add-to-list 'exec-path dir)
+      (setenv "PATH"
+              (concat (expand-file-name dir)
+                      path-separator
+                      (getenv "PATH")))))
+
 (defun dictionary ()
   "Opens a web page to define the word at point."
   (interactive)
   (let ((word (prompt-with-default-as-region "word: ")))
     (browse-url (concat "http://www.google.com/search?q=define:+" word))))
 
-(defun nose (venv-name)
-  "Runs nose on the current buffer using a particular virtualenv"
-  ; @@@ TODO: set DJANGO_SETTINGS_MODULE somehow automatically
+(defun virtualenv (venv-name)
+  "Sets the current virtualenv"
   (interactive "sVirtualenv: ")
+  (setenv "VIRTUAL_ENV" venv-name)
+  (add-to-PATH (concat VENV-BASE venv-name "/bin/")))
+
+(defun activate-dashboard ()
+  (interactive)
+  (virtualenv "dashboard")
+  (setenv "DJANGO_SETTINGS_MODULE" "dashboard.settings"))
+
+(defun nose ()
+  "Runs nose on the current buffer using a particular virtualenv"
+  (interactive)
+  (if (stringp (getenv "DJANGO_SETTINGS_MODULE"))
+      (compile (concat "nosetests " buffer-file-name))
+      (message "DJANGO_SETTINGS_MODULE not set. Please activate something.")))
+
 (defun erc-carbon ()
   "Connects to my IRC bouncer"
   (interactive)
   (erc :server "carbon.justinlilly.com" :port 9999 :nick "justinlilly"))
 
+(defun im-style ()
+  "Runs the IM style guide on the code."
+  (interactive)
   (compile (concat "DJANGO_SETTINGS_MODULE=\"dashboard.settings\" "
-		   "/home/" user-login-name "/.virtualenvs/" venv-name "/bin/nosetests "
-		   buffer-file-name)))
+		   "/home/" user-login-name "/.virtualenvs/dashboard/bin/nosetests "
+		   "/home/" user-login-name "/src/dashboard/tests/test_{pep8,pyflakes}.py")))
+
 (defun jira ()
   (interactive)
   "Opens the JIRA ticket relevant for XXX-1234"
