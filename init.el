@@ -105,6 +105,12 @@
   (compile (concat "DJANGO_SETTINGS_MODULE=\"dashboard.settings\" "
 		   "/home/" user-login-name "/.virtualenvs/" venv-name "/bin/nosetests "
 		   buffer-file-name)))
+(defun jira ()
+  (interactive)
+  "Opens the JIRA ticket relevant for XXX-1234"
+  (browse-url
+   (concat "http://jira.invitemedia.com/browse/"
+	   (thing-at-point 'filename))))  ; not really filename, but the regexp works.
 
 (add-to-list 'package-archives
 	     '("marmalade" . "http://marmalade-repo.org/packages/"))
