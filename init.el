@@ -102,6 +102,11 @@
   "Runs nose on the current buffer using a particular virtualenv"
   ; @@@ TODO: set DJANGO_SETTINGS_MODULE somehow automatically
   (interactive "sVirtualenv: ")
+(defun erc-carbon ()
+  "Connects to my IRC bouncer"
+  (interactive)
+  (erc :server "carbon.justinlilly.com" :port 9999 :nick "justinlilly"))
+
   (compile (concat "DJANGO_SETTINGS_MODULE=\"dashboard.settings\" "
 		   "/home/" user-login-name "/.virtualenvs/" venv-name "/bin/nosetests "
 		   buffer-file-name)))
