@@ -1,6 +1,5 @@
 ;;; desires
 ;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
-;; optional java dev environment. Doesn't load at startup, but is loaded via M-x start-jde
 ;; do I want paredit?
 
 ;; Vim style keyboard moving
