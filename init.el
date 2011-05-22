@@ -13,6 +13,8 @@
 (defalias 'qrr 'query-regexp-replace)
 (fset 'yes-or-no-p 'y-or-n-p)  ;; only type `y` instead of `yes`
 (setq inhibit-splash-screen t) ;; no splash screen
+(setq indent-tabs-mode nil)      ;; no tabs!
+(setq fill-column 80) ;; M-q should fill at 80 chars, not 75
 
 ;; general programming things
 (show-paren-mode 1)  ;; highlight matching parenthasis
@@ -24,7 +26,6 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
 (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
-(load-theme 'tsdh-dark)
 
 (defun prompt-with-default-as-region (prompt)
   "Prompts with the PROMPT, prefilling the value with the region
@@ -89,63 +90,22 @@
 (add-hook 'java-mode-hook (lambda ()
 			    (setq c-basic-offset 2)
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'c-mode-common-hook (lambda ()
+                                (local-set-key (kbd "C-M-h") 'windmove-left)))
 
-;;; fun bits
-(setq VENV-BASE "/home/justinlilly/.virtualenvs/")
-(defun add-to-PATH (dir)
-  ; taken from https://github.com/dreid/emacs-config/blob/master/dreid/paths.el
-  "Add the specified path element to the Emacs PATH"
-  (interactive "DEnter a directory to be added to PATH: ")
-  (if (file-directory-p dir)
-      (add-to-list 'exec-path dir)
-      (setenv "PATH"
-              (concat (expand-file-name dir)
-                      path-separator
-                      (getenv "PATH")))))
-
+;; fun
 (defun dictionary ()
   "Opens a web page to define the word at point."
   (interactive)
   (let ((word (prompt-with-default-as-region "word: ")))
     (browse-url (concat "http://www.google.com/search?q=define:+" word))))
 
-(defun virtualenv (venv-name)
-  "Sets the current virtualenv"
-  (interactive "sVirtualenv: ")
-  (setenv "VIRTUAL_ENV" venv-name)
-  (add-to-PATH (concat VENV-BASE venv-name "/bin/")))
-
-(defun activate-dashboard ()
-  (interactive)
-  (virtualenv "dashboard")
-  (setenv "DJANGO_SETTINGS_MODULE" "dashboard.settings"))
-
-(defun nose ()
-  "Runs nose on the current buffer using a particular virtualenv"
-  (interactive)
-  (if (stringp (getenv "DJANGO_SETTINGS_MODULE"))
-      (compile (concat "nosetests " buffer-file-name))
-      (message "DJANGO_SETTINGS_MODULE not set. Please activate something.")))
-
 (defun erc-carbon ()
   "Connects to my IRC bouncer"
   (interactive)
   (erc :server "carbon.justinlilly.com" :port 9999 :nick "justinlilly"))
 
-(defun im-style ()
-  "Runs the IM style guide on the code."
-  (interactive)
-  (compile (concat "DJANGO_SETTINGS_MODULE=\"dashboard.settings\" "
-		   "/home/" user-login-name "/.virtualenvs/dashboard/bin/nosetests "
-		   "/home/" user-login-name "/src/dashboard/tests/test_{pep8,pyflakes}.py")))
-
-(defun jira ()
-  (interactive)
-  "Opens the JIRA ticket relevant for XXX-1234"
-  (browse-url
-   (concat "http://jira.invitemedia.com/browse/"
-	   (thing-at-point 'filename))))  ; not really filename, but the regexp works.
-
+(require 'package)
 (add-to-list 'package-archives
 	     '("marmalade" . "http://marmalade-repo.org/packages/"))
 (put 'upcase-region 'disabled nil)
