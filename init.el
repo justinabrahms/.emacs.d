@@ -27,19 +27,11 @@
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
 (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
 
-(defun prompt-with-default-as-region (prompt)
-  "Prompts with the PROMPT, prefilling the value with the region
-  if active"
-  (let ((default (if (and transient-mark-mode mark-active)
-		    (buffer-substring-no-properties (region-beginning) (region-end))
-		  nil)))
-    (read-string prompt default)))
-
 ;;; erc
 ;; by default, erc alerts you on any activity. I only want to hear
 ;; about mentions of nick or keyword
 (setq erc-current-nick-highlight-type 'all)
-(setq erc-keywords '("gencal"))
+(setq erc-keywords '("jlilly"))
 (setq erc-track-exclude-types '("JOIN" "PART" "NICK" "MODE" "QUIT"))
 (setq erc-track-use-faces t)
 (setq erc-track-faces-priority-list
@@ -49,27 +41,11 @@
 ;; javascript
 (setq js-indent-level 2)
 
-;; Autocomplete
-(add-to-list 'load-path "~/.emacs.d/vendor/autocomplete/")
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/vendor/autocomplete/ac-dict")
-(ac-config-default)
-
 (ido-mode t);; fuzzy matching on find-file, buffer switch
-
-;; magit, interface to git via emacs
-(add-to-list 'load-path "~/.emacs.d/submodules/magit/")
-(require 'magit)
-
-;; textile mode
-(add-to-list 'load-path "~/.emacs.d/vendor/")
-(require 'textile-mode)
-(add-to-list 'auto-mode-alist '("\\.textile" . textile-mode))
 
 (setq auto-mode-alist
       (append
-       '(("\\.textile" . textile-mode)
-	 ("\\.bashrc" . sh-mode))
+       '(("\\.bashrc" . sh-mode))
        auto-mode-alist))
 
 ;; tempfiles, stolen from github://defunkt/emacs
@@ -90,10 +66,23 @@
 (add-hook 'java-mode-hook (lambda ()
 			    (setq c-basic-offset 2)
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'perl-mode-hook (lambda ()
+			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'c-mode-common-hook (lambda ()
                                 (local-set-key (kbd "C-M-h") 'windmove-left)))
-
+(add-hook 'eshell-mode-hook (lambda ()
+			      (local-set-key (kbd "C-M-l") 'windmove-right)))
+(add-hook 'debugger-mode-hook (lambda ()
+			      (local-set-key (kbd "C-M-l") 'windmove-right)))
 ;; fun
+(defun prompt-with-default-as-region (prompt)
+  "Prompts with the PROMPT, prefilling the value with the region
+  if active"
+  (let ((default (if (and transient-mark-mode mark-active)
+		    (buffer-substring-no-properties (region-beginning) (region-end))
+		  nil)))
+    (read-string prompt default)))
+
 (defun dictionary ()
   "Opens a web page to define the word at point."
   (interactive)
@@ -108,5 +97,46 @@
 (require 'package)
 (add-to-list 'package-archives
 	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+;; org mode
+(setq org-todo-keywords
+      '((sequence "TODO" "WAITING" "DONE")))
+
+;; scpaste
+(setq scpaste-http-destination "http://caesium.justinlilly.com/pastes"
+      scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/blog/pastes")
+
+;; ibuffer configs
+(setq ibuffer-saved-filter-groups
+   '(("default"
+      ("irc" (mode . erc-mode))
+      ("background" (name . "^*.**$")))))
+
+;; history
+(setq savehist-additional-variables    ;; also save...
+  '(search-ring regexp-search-ring)    ;; ... my search entries
+  savehist-file "~/.emacs.d/savehist") ;; keep my home clean
+(savehist-mode t)                      ;; do customization before activate
+
+(add-hook 'ibuffer-mode-hook
+	  (lambda ()
+	    (ibuffer-switch-to-saved-filter-groups "default")))
+
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+
+(load-file "~/.emacs.d/google_setup.el") ;; google specific configurations
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(display-time-mode t)
+ '(menu-bar-mode t)
+ '(tool-bar-mode nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(mode-line-inactive ((t (:inherit mode-line :background "color-20" :foreground "white" :box (:line-width -1 :color "grey40") :weight light)))))
