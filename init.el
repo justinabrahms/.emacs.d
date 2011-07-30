@@ -109,6 +109,8 @@
 ;; ibuffer configs
 (setq ibuffer-saved-filter-groups
    '(("default"
+      ("xbid-ui" (filename . "/justinlilly/xbid/"))
+      ("xbid-backend" (filename . "/justinlilly/xbid_nonjava/"))
       ("irc" (mode . erc-mode))
       ("background" (name . "^*.**$")))))
 
