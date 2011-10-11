@@ -1,6 +1,25 @@
+
 ;;; desires
 ;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
-;; do I want paredit?
+
+;; package.el
+(require 'package)
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+(defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
+			    org paredit protobuf-mode rainbow-delimiters scpaste
+			    idle-highlight-mode go-mode flymake-cursor dired-single)
+  "A list of packages to ensure are installed at launch.")
+
+(dolist (p my-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
+
+(load-file "~/.emacs.d/google_setup.el") ;; google specific configurations
 
 ;; Vim style keyboard moving
 (global-set-key (kbd "C-M-l") 'windmove-right)
@@ -72,8 +91,11 @@
                                 (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'eshell-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
-(add-hook 'debugger-mode-hook (lambda ()
+(add-hook 'gud-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
+(add-hook 'borg-mode-hook (lambda ()
+			      (local-set-key (kbd "C-M-h") 'windmove-left)))
+
 ;; fun
 (defun prompt-with-default-as-region (prompt)
   "Prompts with the PROMPT, prefilling the value with the region
@@ -93,10 +115,6 @@
   "Connects to my IRC bouncer"
   (interactive)
   (erc :server "carbon.justinlilly.com" :port 9999 :nick "justinlilly"))
-
-(require 'package)
-(add-to-list 'package-archives
-	     '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 ;; org mode
 (setq org-todo-keywords
@@ -127,14 +145,15 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
-(load-file "~/.emacs.d/google_setup.el") ;; google specific configurations
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(display-time-mode t)
+ '(elisp-cache-byte-compile-files t)
  '(menu-bar-mode t)
+ '(safe-local-variable-values (quote ((Mode . js))))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -142,3 +161,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mode-line-inactive ((t (:inherit mode-line :background "color-20" :foreground "white" :box (:line-width -1 :color "grey40") :weight light)))))
+(put 'set-goal-column 'disabled nil)
