@@ -9,6 +9,9 @@
 (global-set-key (kbd "C-M-k") 'windmove-up)
 (global-unset-key (kbd "C-x m")) ; I don't use mail
 (global-unset-key (kbd "C-z")) ; suspending frame is useless with emacsclient and/or tmux
+(eval-after-load 'paredit
+  ;; need a binding that works in the terminal
+  '(define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp))
 
 (defalias 'qrr 'query-regexp-replace)
 (fset 'yes-or-no-p 'y-or-n-p)  ;; only type `y` instead of `yes`
