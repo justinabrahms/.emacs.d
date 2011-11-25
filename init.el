@@ -20,7 +20,8 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
-(load-file "~/.emacs.d/google_setup.el") ;; google specific configurations
+(if (file-exists-p "~/.emacs.d/google_setup.el")
+    (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
 
 ;; Vim style keyboard moving
 (global-set-key (kbd "C-M-l") 'windmove-right)
