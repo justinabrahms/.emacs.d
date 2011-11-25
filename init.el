@@ -144,6 +144,33 @@
 	  (lambda ()
 	    (ibuffer-switch-to-saved-filter-groups "default")))
 
+(defun if-string-match-then-result (to-match pairs)
+  "Takes a string to match and a list of pairs, the first element
+of the pairs is a regexp to test against the string, the second of
+which is a return value if it matches."
+  (catch 'break
+    (dolist (val pairs)
+      (if (string-match-p (car val) to-match)
+	  (progn
+	    (throw 'break (cadr val)))))
+    (throw 'break nil)))
+
+(defun eshell/extract (file)
+  (eshell-command-result (concat (if-string-match-then-result
+				  file
+				  '((".*\.tar.bz2" "tar xjf")
+				    (".*\.tar.gz" "tar xzf")
+				    (".*\.bz2" "bunzip2")
+				    (".*\.rar" "unrar x")
+				    (".*\.gz" "gunzip")
+				    (".*\.tar" "tar xf")
+				    (".*\.tbz2" "tar xjf")
+				    (".*\.tgz" "tar xzf")
+				    (".*\.zip" "unzip")
+				    (".*\.Z" "uncompress")
+				    (".*" "echo 'Could not extract the requested file:'")))
+		       " " file)))
+
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
