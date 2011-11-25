@@ -5,3 +5,9 @@ session.*
 /savehist
 /tramp
 /ac-comphist.dat
+/places
+/url/cookies
+/.smex-items
+backups/
+eshell/history
+eshell/lastdir
