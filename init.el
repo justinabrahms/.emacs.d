@@ -41,7 +41,7 @@
 (menu-bar-mode -1) ;; minimal chrome
 (tool-bar-mode -1) ;; no toolbar
 (scroll-bar-mode -1) ;; disable scroll bars
-(setq-default truncate-lines 1)
+(setq-default truncate-lines 1) ;; no wordwrap
 (desktop-save-mode 1) ;; auto-save desktop state for a later time.
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
@@ -96,6 +96,7 @@
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
 (add-hook 'borg-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-h") 'windmove-left)))
+;; TODO(justinlilly): Change sql mode to not override C-M-l
 
 ;; fun
 (defun prompt-with-default-as-region (prompt)
