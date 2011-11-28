@@ -95,6 +95,14 @@
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
 (add-hook 'borg-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'hfy-post-html-hooks
+      (lambda ()
+	;; Replace font-size: 0pt with nothing on htmlfontify-buffer
+	;; which is called from scpaste. This happens when you're
+	;; using a console-based emacs.
+	(beginning-of-buffer)
+	(while (search-forward "font-size: 0pt; " nil t)
+	  (replace-match "" nil t))))
 
 ;; fun
 (defun prompt-with-default-as-region (prompt)
