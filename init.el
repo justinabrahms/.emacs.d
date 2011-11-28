@@ -1,4 +1,3 @@
-
 ;;; desires
 ;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
 
@@ -12,6 +11,7 @@
 
 (defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
 			    org paredit protobuf-mode rainbow-delimiters scpaste
+			    starter-kit-lisp starter-kit-js starter-kit-eshell
 			    idle-highlight-mode go-mode flymake-cursor dired-single)
   "A list of packages to ensure are installed at launch.")
 
@@ -19,7 +19,8 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
-(load-file "~/.emacs.d/google_setup.el") ;; google specific configurations
+(if (file-exists-p "~/.emacs.d/google_setup.el")
+    (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
 
 ;; Vim style keyboard moving
 (global-set-key (kbd "C-M-l") 'windmove-right)
@@ -28,6 +29,9 @@
 (global-set-key (kbd "C-M-k") 'windmove-up)
 (global-unset-key (kbd "C-x m")) ; I don't use mail
 (global-unset-key (kbd "C-z")) ; suspending frame is useless with emacsclient and/or tmux
+(eval-after-load 'paredit
+  ;; need a binding that works in the terminal
+  '(define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp))
 
 (defalias 'qrr 'query-regexp-replace)
 (fset 'yes-or-no-p 'y-or-n-p)  ;; only type `y` instead of `yes`
@@ -40,7 +44,7 @@
 (menu-bar-mode -1) ;; minimal chrome
 (tool-bar-mode -1) ;; no toolbar
 (scroll-bar-mode -1) ;; disable scroll bars
-(setq-default truncate-lines 1)
+(setq-default truncate-lines 1) ;; no wordwrap
 (desktop-save-mode 1) ;; auto-save desktop state for a later time.
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
@@ -103,6 +107,7 @@
 	(beginning-of-buffer)
 	(while (search-forward "font-size: 0pt; " nil t)
 	  (replace-match "" nil t))))
+;; TODO(justinlilly): Change sql mode to not override C-M-l
 
 ;; fun
 (defun prompt-with-default-as-region (prompt)
@@ -149,6 +154,33 @@
 (add-hook 'ibuffer-mode-hook
 	  (lambda ()
 	    (ibuffer-switch-to-saved-filter-groups "default")))
+
+(defun if-string-match-then-result (to-match pairs)
+  "Takes a string to match and a list of pairs, the first element
+of the pairs is a regexp to test against the string, the second of
+which is a return value if it matches."
+  (catch 'break
+    (dolist (val pairs)
+      (if (string-match-p (car val) to-match)
+	  (progn
+	    (throw 'break (cadr val)))))
+    (throw 'break nil)))
+
+(defun eshell/extract (file)
+  (eshell-command-result (concat (if-string-match-then-result
+				  file
+				  '((".*\.tar.bz2" "tar xjf")
+				    (".*\.tar.gz" "tar xzf")
+				    (".*\.bz2" "bunzip2")
+				    (".*\.rar" "unrar x")
+				    (".*\.gz" "gunzip")
+				    (".*\.tar" "tar xf")
+				    (".*\.tbz2" "tar xjf")
+				    (".*\.tgz" "tar xzf")
+				    (".*\.zip" "unzip")
+				    (".*\.Z" "uncompress")
+				    (".*" "echo 'Could not extract the requested file:'")))
+		       " " file)))
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
