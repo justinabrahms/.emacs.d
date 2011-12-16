@@ -1,5 +1,7 @@
 ;;; desires
 ;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
+;; create 5 eshell buffers for a default setup when running work code.
+;; persistent eshell history plz
 
 ;; package.el
 (require 'package)
