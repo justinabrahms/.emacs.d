@@ -21,9 +21,6 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
-(if (file-exists-p "~/.emacs.d/google_setup.el")
-    (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
-
 ;; Vim style keyboard moving
 (global-set-key (kbd "C-M-l") 'windmove-right)
 (global-set-key (kbd "C-M-h") 'windmove-left)
@@ -186,6 +183,7 @@ which is a return value if it matches."
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'set-goal-column 'disabled nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -203,4 +201,7 @@ which is a return value if it matches."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mode-line-inactive ((t (:inherit mode-line :background "color-20" :foreground "white" :box (:line-width -1 :color "grey40") :weight light)))))
-(put 'set-goal-column 'disabled nil)
+
+
+(if (file-exists-p "~/.emacs.d/google_setup.el")
+    (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
