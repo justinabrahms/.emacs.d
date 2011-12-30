@@ -86,6 +86,7 @@
 (add-hook 'java-mode-hook (lambda ()
 			    (setq c-basic-offset 2)
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'java-mode-hook 'hs-minor-mode)
 (add-hook 'perl-mode-hook (lambda ()
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'c-mode-common-hook (lambda ()
@@ -93,7 +94,8 @@
 (add-hook 'eshell-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
 (add-hook 'gud-mode-hook (lambda ()
-			      (local-set-key (kbd "C-M-l") 'windmove-right)))
+                           (local-set-key (kbd "C-M-l") 'windmove-right)))
+(add-hook 'org-mode-hook 'visual-line-mode)
 (add-hook 'borg-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-h") 'windmove-left)))
 ;; TODO(justinlilly): Change sql mode to not override C-M-l
