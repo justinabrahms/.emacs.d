@@ -173,6 +173,18 @@ which is a return value if it matches."
 				    (".*" "echo 'Could not extract the requested file:'")))
 		       " " file)))
 
+(defun jump-to-next-char (c &optional count)
+  "Jump forward or backward to a specific character.  With a
+count, move that many copies of the character."
+  (interactive "cchar: \np")
+  (when (string= (string c) (buffer-substring (point) (+ 1 (point))))
+    (setq count (+ 1 count)))
+  (and
+   (search-forward (string c) nil t count)
+   (> count 0)
+   (backward-char)))
+(global-set-key (kbd "C-:") 'jump-to-next-char)
+
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
