@@ -1,5 +1,7 @@
 ;;; desires
 ;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
+;; create 5 eshell buffers for a default setup when running work code.
+;; persistent eshell history plz
 
 ;; package.el
 (require 'package)
@@ -19,9 +21,6 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
-(if (file-exists-p "~/.emacs.d/google_setup.el")
-    (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
-
 ;; Vim style keyboard moving
 (global-set-key (kbd "C-M-l") 'windmove-right)
 (global-set-key (kbd "C-M-h") 'windmove-left)
@@ -29,6 +28,9 @@
 (global-set-key (kbd "C-M-k") 'windmove-up)
 (global-unset-key (kbd "C-x m")) ; I don't use mail
 (global-unset-key (kbd "C-z")) ; suspending frame is useless with emacsclient and/or tmux
+(eval-after-load 'paredit
+  ;; need a binding that works in the terminal
+  '(define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp))
 
 (defalias 'qrr 'query-regexp-replace)
 (fset 'yes-or-no-p 'y-or-n-p)  ;; only type `y` instead of `yes`
@@ -98,6 +100,14 @@
 (add-hook 'org-mode-hook 'visual-line-mode)
 (add-hook 'borg-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'hfy-post-html-hooks
+      (lambda ()
+	;; Replace font-size: 0pt with nothing on htmlfontify-buffer
+	;; which is called from scpaste. This happens when you're
+	;; using a console-based emacs.
+	(beginning-of-buffer)
+	(while (search-forward "font-size: 0pt; " nil t)
+	  (replace-match "" nil t))))
 ;; TODO(justinlilly): Change sql mode to not override C-M-l
 
 ;; fun
@@ -126,7 +136,7 @@
 
 ;; scpaste
 (setq scpaste-http-destination "http://caesium.justinlilly.com/pastes"
-      scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/blog/pastes")
+      scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/pastes")
 
 ;; ibuffer configs
 (setq ibuffer-saved-filter-groups
@@ -187,6 +197,7 @@ count, move that many copies of the character."
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'set-goal-column 'disabled nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -204,4 +215,7 @@ count, move that many copies of the character."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mode-line-inactive ((t (:inherit mode-line :background "color-20" :foreground "white" :box (:line-width -1 :color "grey40") :weight light)))))
-(put 'set-goal-column 'disabled nil)
+
+
+(if (file-exists-p "~/.emacs.d/google_setup.el")
+    (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
