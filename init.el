@@ -199,6 +199,7 @@ which is a return value if it matches."
  '(display-time-mode t)
  '(elisp-cache-byte-compile-files t)
  '(menu-bar-mode t)
+ '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
  '(safe-local-variable-values (quote ((Mode . js))))
  '(tool-bar-mode nil))
 (custom-set-faces
