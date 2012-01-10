@@ -181,6 +181,12 @@ which is a return value if it matches."
 				    (".*" "echo 'Could not extract the requested file:'")))
 		       " " file)))
 
+(defun eshell/clear ()
+  "clear the eshell buffer."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
+
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
