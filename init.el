@@ -88,6 +88,7 @@
 (add-hook 'java-mode-hook (lambda ()
 			    (setq c-basic-offset 2)
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'java-mode-hook 'hs-minor-mode)
 (add-hook 'perl-mode-hook (lambda ()
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'c-mode-common-hook (lambda ()
@@ -95,7 +96,8 @@
 (add-hook 'eshell-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
 (add-hook 'gud-mode-hook (lambda ()
-			      (local-set-key (kbd "C-M-l") 'windmove-right)))
+                           (local-set-key (kbd "C-M-l") 'windmove-right)))
+(add-hook 'org-mode-hook 'visual-line-mode)
 (add-hook 'borg-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'hfy-post-html-hooks
@@ -186,6 +188,18 @@ which is a return value if it matches."
   (interactive)
   (let ((inhibit-read-only t))
     (erase-buffer)))
+
+(defun jump-to-next-char (c &optional count)
+  "Jump forward or backward to a specific character.  With a
+count, move that many copies of the character."
+  (interactive "cchar: \np")
+  (when (string= (string c) (buffer-substring (point) (+ 1 (point))))
+    (setq count (+ 1 count)))
+  (and
+   (search-forward (string c) nil t count)
+   (> count 0)
+   (backward-char)))
+(global-set-key (kbd "C-:") 'jump-to-next-char)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
