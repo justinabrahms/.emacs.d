@@ -45,7 +45,7 @@
 (if window-system
     (progn
       (scroll-bar-mode -1) ;; disable scroll bars
-      (set-frame-font "Anonymous Pro-9"))) ;; Mmm. Delicious fonts.
+      (set-frame-font "Anonymous Pro-10"))) ;; Mmm. Delicious fonts.
 (setq-default truncate-lines 1) ;; no wordwrap
 (desktop-save-mode 1) ;; auto-save desktop state for a later time.
 (require 'uniquify)
