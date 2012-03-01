@@ -214,6 +214,11 @@ count, move that many copies of the character."
    (backward-char)))
 (global-set-key (kbd "C-:") 'jump-to-next-char)
 
+
+;; turning on autofill everywhere seems to give errors like "error in
+;; process filter: Wrong type argument: stringp, nil" and other randomness.
+(remove-hook 'text-mode-hook 'turn-on-auto-fill)
+
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
