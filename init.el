@@ -172,6 +172,8 @@ which is a return value if it matches."
 	    (throw 'break (cadr val)))))
     (throw 'break nil)))
 
+(setq eshell-history-size nil) ;; sets it to $HISTSIZE
+
 (defun eshell/extract (file)
   (eshell-command-result (concat (if-string-match-then-result
 				  file
