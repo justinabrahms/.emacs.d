@@ -196,6 +196,12 @@ which is a return value if it matches."
   (let ((inhibit-read-only t))
     (erase-buffer)))
 
+(defun eshell/mcd (dir)
+  "make a directory and cd into it"
+  (interactive)
+  (eshell/mkdir dir)
+  (eshell/cd dir))
+
 (defun jump-to-next-char (c &optional count)
   "Jump forward or backward to a specific character.  With a
 count, move that many copies of the character."
