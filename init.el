@@ -78,6 +78,10 @@
       auto-save-list-file-prefix (concat user-temporary-file-directory ".auto-saves-")
       auto-save-file-name-transforms `((".*" ,user-temporary-file-directory)))
 
+;; if I use tramp to access /ssh:root@..., then actually ssh into it
+;; and sudo, not login as root.
+(set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
+
 ;;; hooks
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'dired-load-hook (lambda ()
