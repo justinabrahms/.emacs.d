@@ -1,6 +1,5 @@
 ;;; desires
 ;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
-;; create 5 eshell buffers for a default setup when running work code.
 ;; persistent eshell history plz
 
 ;; package.el
@@ -182,6 +181,13 @@ which is a return value if it matches."
 				    (".*\.Z" "uncompress")
 				    (".*" "echo 'Could not extract the requested file:'")))
 		       " " file)))
+
+(defun mass-create-eshells (names)
+  "Creates several eshells at once with the provided names. Names
+are surrounded in astrisks."
+  (dolist (name names)
+    (let ((eshell-buffer-name (concat "*" name "*")))
+      (eshell))))
 
 (defun jump-to-next-char (c &optional count)
   "Jump forward or backward to a specific character.  With a
