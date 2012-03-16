@@ -6,6 +6,7 @@
 (require 'package)
 (add-to-list 'package-archives
 	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
 
 (when (not package-archive-contents)
   (package-refresh-contents))
@@ -13,7 +14,8 @@
 (defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
 			    org paredit protobuf-mode rainbow-delimiters scpaste
 			    starter-kit-lisp starter-kit-js starter-kit-eshell
-			    idle-highlight-mode go-mode flymake-cursor dired-single)
+			    idle-highlight-mode go-mode flymake-cursor dired-single
+                            scratch dizzee ctags-update)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -41,7 +43,10 @@
 (show-paren-mode 1)  ;; highlight matching parenthasis
 (menu-bar-mode -1) ;; minimal chrome
 (tool-bar-mode -1) ;; no toolbar
-(scroll-bar-mode -1) ;; disable scroll bars
+(if window-system
+    (progn
+      (scroll-bar-mode -1) ;; disable scroll bars
+      (set-frame-font "Anonymous Pro-10"))) ;; Mmm. Delicious fonts.
 (setq-default truncate-lines 1) ;; no wordwrap
 (desktop-save-mode 1) ;; auto-save desktop state for a later time.
 (require 'uniquify)
@@ -144,8 +149,8 @@
 ;; ibuffer configs
 (setq ibuffer-saved-filter-groups
    '(("default"
-      ("xbid-ui" (filename . "/justinlilly/xbid/"))
-      ("xbid-backend" (filename . "/justinlilly/xbid_nonjava/"))
+      ("xbid-ui" (filename . "/src/xbid_java/"))
+      ("xbid-backend" (filename . "/src/xbid_nonjava/"))
       ("irc" (mode . erc-mode))
       ("background" (name . "^*.**$")))))
 
@@ -170,6 +175,8 @@ which is a return value if it matches."
 	    (throw 'break (cadr val)))))
     (throw 'break nil)))
 
+(setq eshell-history-size nil) ;; sets it to $HISTSIZE
+
 (defun eshell/extract (file)
   (eshell-command-result (concat (if-string-match-then-result
 				  file
@@ -193,6 +200,18 @@ are surrounded in astrisks."
     (let ((eshell-buffer-name (concat "*" name "*")))
       (eshell))))
 
+(defun eshell/clear ()
+  "clear the eshell buffer."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
+
+(defun eshell/mcd (dir)
+  "make a directory and cd into it"
+  (interactive)
+  (eshell/mkdir dir)
+  (eshell/cd dir))
+
 (defun jump-to-next-char (c &optional count)
   "Jump forward or backward to a specific character.  With a
 count, move that many copies of the character."
@@ -204,6 +223,11 @@ count, move that many copies of the character."
    (> count 0)
    (backward-char)))
 (global-set-key (kbd "C-:") 'jump-to-next-char)
+
+
+;; turning on autofill everywhere seems to give errors like "error in
+;; process filter: Wrong type argument: stringp, nil" and other randomness.
+(remove-hook 'text-mode-hook 'turn-on-auto-fill)
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -217,6 +241,7 @@ count, move that many copies of the character."
  '(display-time-mode t)
  '(elisp-cache-byte-compile-files t)
  '(menu-bar-mode t)
+ '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
  '(safe-local-variable-values (quote ((Mode . js))))
  '(tool-bar-mode nil))
 (custom-set-faces
