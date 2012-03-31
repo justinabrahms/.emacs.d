@@ -70,6 +70,7 @@
 (setq js-indent-level 2)
 
 (ido-mode t);; fuzzy matching on find-file, buffer switch
+(require 'dedicated) ;; sticky windows
 
 (setq auto-mode-alist
       (append
