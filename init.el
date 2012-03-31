@@ -231,15 +231,18 @@ count, move that many copies of the character."
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes (quote ("5727ad01be0a0d371f6e26c72f2ef2bafdc483063de26c88eaceea0674deb3d9" "30fe7e72186c728bd7c3e1b8d67bc10b846119c45a0f35c972ed427c45bacc19" default)))
  '(display-time-mode t)
- '(elisp-cache-byte-compile-files t)
- '(menu-bar-mode t)
+ '(elisp-cache-byte-compile-files nil)
+ '(erc-truncate-mode t)
+ '(menu-bar-mode nil)
  '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
  '(safe-local-variable-values (quote ((Mode . js))))
  '(tool-bar-mode nil))
