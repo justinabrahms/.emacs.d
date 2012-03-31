@@ -222,6 +222,7 @@ count, move that many copies of the character."
    (backward-char)))
 (global-set-key (kbd "C-:") 'jump-to-next-char)
 
+(setq compilation-scroll-output 'first-error)
 
 ;; turning on autofill everywhere seems to give errors like "error in
 ;; process filter: Wrong type argument: stringp, nil" and other randomness.
