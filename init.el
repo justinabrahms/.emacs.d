@@ -201,7 +201,7 @@ which is a return value if it matches."
 (defun eshell/mcd (dir)
   "make a directory and cd into it"
   (interactive)
-  (eshell/mkdir dir)
+  (eshell/mkdir "-p" dir)
   (eshell/cd dir))
 
 (defun jump-to-next-char (c &optional count)
