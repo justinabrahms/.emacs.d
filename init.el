@@ -14,7 +14,8 @@
 
 (defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
 			    org paredit protobuf-mode rainbow-delimiters scpaste
-			    starter-kit-lisp starter-kit-js starter-kit-eshell
+                            ;; something in ESK is breaking ido for me
+			    ;; starter-kit-lisp starter-kit-js starter-kit-eshell
 			    idle-highlight-mode go-mode flymake-cursor dired-single
                             scratch dizzee ctags-update)
   "A list of packages to ensure are installed at launch.")
