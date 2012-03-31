@@ -204,6 +204,12 @@ which is a return value if it matches."
   (eshell/mkdir "-p" dir)
   (eshell/cd dir))
 
+(defun make-eshells (names)
+  "Makes an eshell with each element of names as name. Surrounds the names in **'s"
+  (loop for name in names
+	do (let ((eshell-buffer-name (concat "*" name "*")))
+	     (eshell))))
+
 (defun jump-to-next-char (c &optional count)
   "Jump forward or backward to a specific character.  With a
 count, move that many copies of the character."
