@@ -229,6 +229,32 @@ count, move that many copies of the character."
    (backward-char)))
 (global-set-key (kbd "C-:") 'jump-to-next-char)
 
+(defun get-java-project-root ()
+  "Override-able java project root which I override elsewhere"
+  "")
+
+(defun find-java-imports (tag)
+  "Slightly confusing bash command which will search for java
+imports in your `get-java-project-root` directory and present you
+with a list of options sorted in most-used order. It does not
+insert them into the buffer, however."
+  (let* ((command (concat
+		   ;;; find all java files in project root (excluding symlinks)
+		   "find -P " (get-java-project-root) " -name '*.java' -type f | "
+		   ;;; filter out imports that match tag
+		   "xargs grep -h 'import .*\\." tag ";' "
+		   ;;; group occurrences, count unique entries, then sort DESC
+		   " | sort | uniq -c | sort -nr "
+		   ;;; trim whitespace and ditch the count
+		   " | sed 's/^\s*//' | cut -f2- -d ' '"))
+	 (message command)
+         (results (shell-command-to-string command)))
+    (if (not (eq 0 (length results)))
+        (split-string
+         (replace-regexp-in-string
+          ";" "" (replace-regexp-in-string "import " "" results))
+         "\n" t))))
+
 (setq compilation-scroll-output 'first-error)
 
 ;; turning on autofill everywhere seems to give errors like "error in
