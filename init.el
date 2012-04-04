@@ -188,6 +188,7 @@ which is a return value if it matches."
 				    (".*\.tbz2" "tar xjf")
 				    (".*\.tgz" "tar xzf")
 				    (".*\.zip" "unzip")
+				    (".*\.jar" "unzip")
 				    (".*\.Z" "uncompress")
 				    (".*" "echo 'Could not extract the requested file:'")))
 		       " " file)))
