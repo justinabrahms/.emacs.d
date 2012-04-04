@@ -17,7 +17,9 @@
                             ;; something in ESK is breaking ido for me
 			    ;; starter-kit-lisp starter-kit-js starter-kit-eshell
 			    idle-highlight-mode go-mode flymake-cursor dired-single
-                            scratch dizzee ctags-update pastels-on-dark-theme)
+                            scratch dizzee ctags-update
+			    pastels-on-dark-theme
+			    fill-column-indicator)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -71,6 +73,7 @@
 
 (ido-mode t);; fuzzy matching on find-file, buffer switch
 (require 'dedicated) ;; sticky windows
+(require 'fill-column-indicator)
 
 (setq auto-mode-alist
       (append
@@ -94,6 +97,9 @@
 			     (dired-omit-mode 1)))
 (add-hook 'java-mode-hook (lambda ()
 			    (setq c-basic-offset 2)
+                            (setq fill-column 100)
+			    (fci-mode t)
+			    (subword-mode t)
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'java-mode-hook 'hs-minor-mode)
 (add-hook 'perl-mode-hook (lambda ()
