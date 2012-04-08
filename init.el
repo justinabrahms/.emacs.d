@@ -13,9 +13,12 @@
 
 (defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
 			    org paredit protobuf-mode rainbow-delimiters scpaste
-			    starter-kit-lisp starter-kit-js starter-kit-eshell
+                            ;; something in ESK is breaking ido for me
+			    ;; starter-kit-lisp starter-kit-js starter-kit-eshell
 			    idle-highlight-mode go-mode flymake-cursor dired-single
-                            scratch dizzee ctags-update)
+                            scratch dizzee ctags-update
+			    pastels-on-dark-theme
+			    fill-column-indicator)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -68,6 +71,8 @@
 (setq js-indent-level 2)
 
 (ido-mode t);; fuzzy matching on find-file, buffer switch
+(require 'dedicated) ;; sticky windows
+(require 'fill-column-indicator)
 
 (setq auto-mode-alist
       (append
@@ -95,6 +100,9 @@
 			     (dired-omit-mode 1)))
 (add-hook 'java-mode-hook (lambda ()
 			    (setq c-basic-offset 2)
+                            (setq fill-column 100)
+			    (fci-mode t)
+			    (subword-mode t)
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'java-mode-hook 'hs-minor-mode)
 (add-hook 'perl-mode-hook (lambda ()
@@ -189,6 +197,7 @@ which is a return value if it matches."
 				    (".*\.tbz2" "tar xjf")
 				    (".*\.tgz" "tar xzf")
 				    (".*\.zip" "unzip")
+				    (".*\.jar" "unzip")
 				    (".*\.Z" "uncompress")
 				    (".*" "echo 'Could not extract the requested file:'")))
 		       " " file)))
@@ -209,8 +218,14 @@ are surrounded in astrisks."
 (defun eshell/mcd (dir)
   "make a directory and cd into it"
   (interactive)
-  (eshell/mkdir dir)
+  (eshell/mkdir "-p" dir)
   (eshell/cd dir))
+
+(defun make-eshells (names)
+  "Makes an eshell with each element of names as name. Surrounds the names in **'s"
+  (loop for name in names
+	do (let ((eshell-buffer-name (concat "*" name "*")))
+	     (eshell))))
 
 (defun jump-to-next-char (c &optional count)
   "Jump forward or backward to a specific character.  With a
@@ -224,6 +239,33 @@ count, move that many copies of the character."
    (backward-char)))
 (global-set-key (kbd "C-:") 'jump-to-next-char)
 
+(defun get-java-project-root ()
+  "Override-able java project root which I override elsewhere"
+  "")
+
+(defun find-java-imports (tag)
+  "Slightly confusing bash command which will search for java
+imports in your `get-java-project-root` directory and present you
+with a list of options sorted in most-used order. It does not
+insert them into the buffer, however."
+  (let* ((command (concat
+		   ;;; find all java files in project root (excluding symlinks)
+		   "find -P " (get-java-project-root) " -name '*.java' -type f | "
+		   ;;; filter out imports that match tag
+		   "xargs grep -h 'import .*\\." tag ";' "
+		   ;;; group occurrences, count unique entries, then sort DESC
+		   " | sort | uniq -c | sort -nr "
+		   ;;; trim whitespace and ditch the count
+		   " | sed 's/^\s*//' | cut -f2- -d ' '"))
+	 (message command)
+         (results (shell-command-to-string command)))
+    (if (not (eq 0 (length results)))
+        (split-string
+         (replace-regexp-in-string
+          ";" "" (replace-regexp-in-string "import " "" results))
+         "\n" t))))
+
+(setq compilation-scroll-output 'first-error)
 
 ;; turning on autofill everywhere seems to give errors like "error in
 ;; process filter: Wrong type argument: stringp, nil" and other randomness.
@@ -232,15 +274,18 @@ count, move that many copies of the character."
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes (quote ("5727ad01be0a0d371f6e26c72f2ef2bafdc483063de26c88eaceea0674deb3d9" "30fe7e72186c728bd7c3e1b8d67bc10b846119c45a0f35c972ed427c45bacc19" default)))
  '(display-time-mode t)
- '(elisp-cache-byte-compile-files t)
- '(menu-bar-mode t)
+ '(elisp-cache-byte-compile-files nil)
+ '(erc-truncate-mode t)
+ '(menu-bar-mode nil)
  '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
  '(safe-local-variable-values (quote ((Mode . js))))
  '(tool-bar-mode nil))
