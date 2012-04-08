@@ -144,7 +144,7 @@
 
 ;; scpaste
 (setq scpaste-http-destination "http://caesium.justinlilly.com/pastes"
-      scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/pastes")
+      scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/blog/pastes")
 
 ;; ibuffer configs
 (setq ibuffer-saved-filter-groups
