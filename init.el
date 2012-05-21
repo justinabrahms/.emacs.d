@@ -73,7 +73,7 @@
 
 (ido-mode t);; fuzzy matching on find-file, buffer switch
 (require 'dedicated) ;; sticky windows
-(require 'fill-column-indicator)
+(require 'fill-column-indicator) ;; line indicating some edge column
 
 (setq auto-mode-alist
       (append
@@ -90,7 +90,6 @@
       auto-save-file-name-transforms `((".*" ,user-temporary-file-directory)))
 
 ;;; hooks
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'dired-load-hook (lambda ()
 			     (load "dired-x")))
 (add-hook 'dired-mode-hook (lambda ()
@@ -275,6 +274,9 @@ insert them into the buffer, however."
  '(display-time-mode t)
  '(elisp-cache-byte-compile-files nil)
  '(erc-truncate-mode t)
+ '(google-imports-file-for-tag (quote (("ServiceException" . "javax.xml.rpc.ServiceException") ("MalformedURLException" . "java.net.MalformedURLException") ("URL" . "java.net.URL") ("Named" . "com.google.inject.name.Named") ("Inject" . "com.google.inject.Inject") ("FormattingLogger" . "java/com/google/common/logging/FormattingLogger.java"))))
+ '(grok-auto-patch-buffers t)
+ '(grok-sloppy-editing t)
  '(menu-bar-mode nil)
  '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
  '(safe-local-variable-values (quote ((Mode . js))))
@@ -288,4 +290,4 @@ insert them into the buffer, however."
 
 
 (if (file-exists-p "~/.emacs.d/google_setup.el")
-    (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
+   (load-file "~/.emacs.d/google_setup.el")) ;; google specific configurations
