@@ -1,12 +1,12 @@
 ;;; desires
 ;; it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/
-;; create 5 eshell buffers for a default setup when running work code.
 ;; persistent eshell history plz
 
 ;; package.el
 (require 'package)
 (add-to-list 'package-archives
-	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+	     '("marmalade" . "http://marmalade-repo.org/packages/")
+             '("melpa" . "http://melpa.milkbox.net/packages/"))
 (package-initialize)
 
 (when (not package-archive-contents)
@@ -90,6 +90,10 @@
       auto-save-list-file-prefix (concat user-temporary-file-directory ".auto-saves-")
       auto-save-file-name-transforms `((".*" ,user-temporary-file-directory)))
 
+;; if I use tramp to access /ssh:root@..., then actually ssh into it
+;; and sudo, not login as root.
+(set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
+
 ;;; hooks
 (add-hook 'dired-load-hook (lambda ()
 			     (load "dired-x")))
@@ -149,7 +153,7 @@
 
 ;; scpaste
 (setq scpaste-http-destination "http://caesium.justinlilly.com/pastes"
-      scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/pastes")
+      scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/blog/pastes")
 
 ;; ibuffer configs
 (setq ibuffer-saved-filter-groups
@@ -198,6 +202,13 @@ which is a return value if it matches."
 				    (".*\.Z" "uncompress")
 				    (".*" "echo 'Could not extract the requested file:'")))
 		       " " file)))
+
+(defun mass-create-eshells (names)
+  "Creates several eshells at once with the provided names. Names
+are surrounded in astrisks."
+  (dolist (name names)
+    (let ((eshell-buffer-name (concat "*" name "*")))
+      (eshell))))
 
 (defun eshell/clear ()
   "clear the eshell buffer."
