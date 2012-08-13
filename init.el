@@ -72,6 +72,7 @@
 (setq js-indent-level 2)
 
 (ido-mode t);; fuzzy matching on find-file, buffer switch
+(setq ido-enable-flex-matching t)
 (require 'dedicated) ;; sticky windows
 (require 'fill-column-indicator) ;; line indicating some edge column
 
