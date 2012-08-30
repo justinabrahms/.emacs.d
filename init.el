@@ -52,12 +52,13 @@
 (if window-system
     (progn
       (scroll-bar-mode -1) ;; disable scroll bars
-      (set-frame-font "Anonymous Pro-10"))) ;; Mmm. Delicious fonts.
+      (set-frame-font "Anonymous Pro-12"))) ;; Mmm. Delicious fonts.
 (setq-default truncate-lines 1) ;; no wordwrap
 (desktop-save-mode 1) ;; auto-save desktop state for a later time.
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
 (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
+(require 'tramp)
 
 ;;; erc
 ;; by default, erc alerts you on any activity. I only want to hear
