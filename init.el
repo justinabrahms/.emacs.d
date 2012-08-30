@@ -79,6 +79,9 @@
 (require 'dedicated) ;; sticky windows
 (require 'fill-column-indicator) ;; line indicating some edge column
 
+;; python
+(require 'python-mode)
+
 (setq auto-mode-alist
       (append
        '(("\\.bashrc" . sh-mode))
@@ -120,6 +123,11 @@
 (add-hook 'org-mode-hook 'visual-line-mode)
 (add-hook 'borg-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'python-mode-hook (lambda ()
+			      (fci-mode t)
+			      (local-set-key (kbd "C-M-h") 'windmove-left)
+			      (setq fill-column 80)))
+
 (add-hook 'hfy-post-html-hooks
       (lambda ()
 	;; Replace font-size: 0pt with nothing on htmlfontify-buffer
