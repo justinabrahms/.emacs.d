@@ -19,8 +19,8 @@
                             ;; something in ESK is breaking ido for me
 			    ;; starter-kit-lisp starter-kit-js starter-kit-eshell
 			    idle-highlight-mode go-mode flymake-cursor dired-single
-                            scratch dizzee ctags-update
-			    pastels-on-dark-theme
+                            scratch dizzee ctags-update virtualenv
+			    pastels-on-dark-theme textmate pony-mode
 			    fill-column-indicator)
   "A list of packages to ensure are installed at launch.")
 
