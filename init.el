@@ -293,7 +293,7 @@ insert them into the buffer, however."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("5727ad01be0a0d371f6e26c72f2ef2bafdc483063de26c88eaceea0674deb3d9" "30fe7e72186c728bd7c3e1b8d67bc10b846119c45a0f35c972ed427c45bacc19" default)))
+ '(custom-safe-themes (quote ("211bb9b24001d066a646809727efb9c9a2665c270c753aa125bace5e899cb523" "5727ad01be0a0d371f6e26c72f2ef2bafdc483063de26c88eaceea0674deb3d9" "30fe7e72186c728bd7c3e1b8d67bc10b846119c45a0f35c972ed427c45bacc19" default)))
  '(display-time-mode t)
  '(elisp-cache-byte-compile-files nil)
  '(erc-truncate-mode t)
@@ -302,7 +302,7 @@ insert them into the buffer, however."
  '(grok-sloppy-editing t)
  '(menu-bar-mode nil)
  '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
- '(safe-local-variable-values (quote ((Mode . js))))
+ '(safe-local-variable-values (quote ((virtualenv-default-directory . "/Users/justinlilly/src/prbot/") (virtualenv-workon . "prbot") (Mode . js))))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
