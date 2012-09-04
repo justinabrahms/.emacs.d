@@ -28,6 +28,10 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
+
+(if (not server-mode)
+    (server-start nil t))
+
 ;; Vim style keyboard moving
 (global-set-key (kbd "C-M-l") 'windmove-right)
 (global-set-key (kbd "C-M-h") 'windmove-left)
