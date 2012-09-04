@@ -131,6 +131,10 @@
 			      (fci-mode t)
 			      (local-set-key (kbd "C-M-h") 'windmove-left)
 			      (setq fill-column 80)))
+(add-hook 'ruby-mode-hook (lambda ()
+			      (local-set-key (kbd "C-M-h") 'windmove-left)))
+(add-hook 'comint-mode-hook (lambda ()
+			      (local-set-key (kbd "C-M-l") 'windmove-right)))
 
 (add-hook 'hfy-post-html-hooks
       (lambda ()
