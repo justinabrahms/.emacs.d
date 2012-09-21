@@ -75,9 +75,6 @@
       '(erc-current-nick-face erc-keyword-face))
 (setq erc-track-priority-faces-only 'all)
 
-;; javascript
-(setq js-indent-level 2)
-
 (ido-mode t);; fuzzy matching on find-file, buffer switch
 (setq ido-enable-flex-matching t)
 (require 'dedicated) ;; sticky windows
@@ -120,6 +117,9 @@
 			    (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'c-mode-common-hook (lambda ()
                                 (local-set-key (kbd "C-M-h") 'windmove-left)))
+;;; Necessary to make some modes aware of binaries, such as sql-mysql
+(push "/usr/local/bin" exec-path)
+
 (add-hook 'eshell-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
 (add-hook 'gud-mode-hook (lambda ()
@@ -135,6 +135,12 @@
 			      (local-set-key (kbd "C-M-h") 'windmove-left)))
 (add-hook 'comint-mode-hook (lambda ()
 			      (local-set-key (kbd "C-M-l") 'windmove-right)))
+(add-hook 'html-mode-hook (lambda ()
+			    (setq indent-tabs-mode nil)))
+;; javascript
+(setq js-indent-level 2)
+(add-hook 'js-mode-hook (lambda ()
+			  (setq indent-tabs-mode nil)))
 
 (add-hook 'hfy-post-html-hooks
       (lambda ()
