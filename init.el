@@ -241,6 +241,12 @@ are surrounded in astrisks."
   (eshell/mkdir "-p" dir)
   (eshell/cd dir))
 
+(defun eshell/git-delete-unreachable-remotes ()
+  (interactive)
+  (if (not (string-equal "master" (magit-get-current-branch)))
+      (message "Not on master. This probably doesn't do what you want."))
+  (shell-command "git branch -r --merged | grep -v '/master$' | sed -E 's/origin\\/(.*)/:\\1/' | xargs git push origin"))
+
 (defun make-eshells (names)
   "Makes an eshell with each element of names as name. Surrounds the names in **'s"
   (loop for name in names
