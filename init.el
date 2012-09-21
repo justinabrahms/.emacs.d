@@ -177,10 +177,17 @@
 ;; ibuffer configs
 (setq ibuffer-saved-filter-groups
    '(("default"
-      ("xbid-ui" (filename . "/src/xbid_java/"))
-      ("xbid-backend" (filename . "/src/xbid_nonjava/"))
+      ("sprintly-main" (filename . "/src/sprintly/sprint.ly/snowbird/"))
+      ("sprintly-js" (filename . "/src/sprintly/sprint.ly/html/"))
+      ("sprintly-misc" (filename . "/src/sprintly/sprint.ly/"))
+      ("sprintly-chef" (filename . "/src/sprintly/sprint.ly-chef/"))
       ("irc" (mode . erc-mode))
       ("background" (name . "^*.**$")))))
+
+
+(add-hook 'ibuffer-mode-hook ; refresh buffer groups on ibuffer mode.
+	  (lambda ()
+	    (ibuffer-switch-to-saved-filter-groups "default")))
 
 ;; history
 (setq savehist-additional-variables    ;; also save...
