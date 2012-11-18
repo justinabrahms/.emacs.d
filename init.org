@@ -1,0 +1,555 @@
+#+title: My Emacs Configuration
+#+babel: :tangle ~/.emacs.d/init.el
+* Written in org-babel, used in emacs.
+This is my emacs configuration, as typed in org-babel. Its a form of
+literate programming which is really nice in that it basically goads
+me into writing a better documented emacs config.
+** TODOs
+- it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/   
+- persistent eshell history (maybe it pulls in normal shell history too)
+- good situation for sshing into other machines
+- implement ffap for python.
+** Setup package.el
+package.el is a package manager for emacs modes. It is official in
+emacs-24, but is back ported to emacs23. The setup for single files is
+trivial and multi-file simple things is also pretty easy. It gets
+complicated if you're doing something weird like CEDET. We tie into
+marmalade (a package repository that doesn't require you to release
+your plugins under GPL) and melpa which pulls in things from github.
+#+BEGIN_src emacs-lisp :tangle yes
+;; package.el
+(require 'package)
+
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+	     '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+
+(package-initialize)
+#+end_src
+
+Get an up-to-date list of packages available to us if a cached copy
+doesn't exist. Then loop over the list of packages we want around and
+install them.
+#+begin_src emacs-lisp :tangle yes
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+(defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
+			    org paredit protobuf-mode rainbow-delimiters scpaste
+                            ;; something in ESK is breaking ido for me
+			    ;; starter-kit-lisp starter-kit-js starter-kit-eshell
+			    idle-highlight-mode go-mode flymake-cursor dired-single
+                            scratch dizzee ctags-update virtualenv
+			    pastels-on-dark-theme textmate pony-mode
+			    fill-column-indicator flycheck)
+  "A list of packages to ensure are installed at launch.")
+
+(dolist (p my-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
+#+end_src
+
+** Generic Emacs Stuff
+Emacs has a few things that nearly everyone changes. Minimize the
+chrome (emacs should be as command-line-like as possible), lose the
+overly-verbose and annoying prompts, etc. These are all documented
+inline.
+#+begin_src emacs-lisp :tangle yes
+(defalias 'qrr 'query-regexp-replace)
+(fset 'yes-or-no-p 'y-or-n-p)  ;; only type `y` instead of `yes`
+(setq inhibit-splash-screen t) ;; no splash screen
+(setq-default indent-tabs-mode nil)      ;; no tabs!
+(setq fill-column 80) ;; M-q should fill at 80 chars, not 75
+
+;; general programming things
+(menu-bar-mode -1) ;; minimal chrome
+(tool-bar-mode -1) ;; no toolbar
+(if window-system
+    (progn
+      (scroll-bar-mode -1) ;; disable scroll bars
+      (set-frame-font "Anonymous Pro-12"))) ;; Mmm. Delicious fonts.
+(setq-default truncate-lines 1) ;; no wordwrap
+
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward)  ;; buffernames that are foo<1>, foo<2> are hard to read. This makes them foo|dir  foo|otherdir
+(desktop-save-mode 1) ;; auto-save buffer state on close for a later time.
+(setq abbrev-file-name "~/.emacs.d/abbrev_defs") ;; where to save auto-replace maps
+
+(ido-mode t);; fuzzy matching on find-file, buffer switch
+(setq ido-enable-flex-matching t)
+#+end_src
+
+** Lisp
+Paredit is a really neat lisp editing mode. One big thing it does for
+you is keep your parens balanced at all times, which turns out to be
+pretty important. It has a lot of mini-refactoring commands built-in
+(pull up, add parameter, etc) but I always forget them because I don't
+write lisp enough to commit it to memory.
+
+#+begin_src emacs-lisp :tangle yes
+(eval-after-load 'paredit
+  ;; need a binding that works in the terminal
+  '(define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp))
+
+(show-paren-mode 1)  ;; highlight matching parenthasis
+(add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+#+end_src
+
+Slime is the big part of a lisp IDE. Its a process that runs an
+inferior process (usually a lisp interpreter) in the background and
+you can send information to it. 
+#+begin_src emacs-lisp :tangle yes
+(require 'slime)
+#+end_src
+** Python
+There's a weird history with python and emacs. The FSF maintains a
+copy of python-mode which ships with emacs. The Python community
+maintains a separate version. They have evolved away from each other
+and each supports different things. I'm currently using the FSF
+version, but I'm not sold on it quite yet. I've run into a few syntax
+highlighting bugs where the buffer won't fully fill out.
+
+#+begin_src emacs-lisp :tangle yes
+  ;; python
+  (require 'python-mode)
+
+  (add-hook 'python-mode-hook (lambda () 
+                                ;; This breaks the blog export, as the
+                                ;; python snippet doesn't actually have
+                                ;; a filename. Need to investigate
+                                ;; flycheck for options.
+                                ;; (flycheck-mode -1)
+                                (fci-mode 1)))
+#+end_src
+
+Virtualenv is a tool in the python community which sorts out your
+python package dependencies into their own contained enviroments. This
+is similar to RVM and friends in the ruby community. virtualenv-mode
+is a mode which helps you operate within these from within emacs. It
+is pretty good. My one complaint is that it doesn't set the proper
+environment within eshell. 
+#+begin_src emacs-lisp :tangle yes
+  ;; TODO(justinlilly): setup the proper virtualenv info in eshell
+  (setq virtualenv-workon-starts-python nil)
+#+end_src
+
+Pony-mode is a Django helper mode which gives you access to many neat
+commands like runserver, manage, tests and more from handy
+keybindings. This is a [[https://github.com/davidmiller/pony-mode/issues/59][small patch]] for the project which will take
+into account an directory which contains all of your apps and properly
+filter it out when determining app names.
+#+begin_src emacs-lisp :tangle yes
+  (setq pony-app-dir-prefix "apps")
+  
+  (defun pony-get-app ()
+    "Return the name of the current app, or nil if no app
+  found. Corrects for excluded prefix."
+    (let* ((root (pony-project-root))
+       (excluded-prefix (if (nil-blank-string pony-app-dir-prefix)
+                    (concat root pony-app-dir-prefix "/")
+                  root))
+           (re (concat "^" (regexp-quote excluded-prefix) "\\([A-Za-z_]+\\)/"))
+           (path (or buffer-file-name (expand-file-name default-directory))))
+      (when (string-match re path)
+        (match-string 1 path))))
+
+  (defun pony-time ()
+    "Helper function to get an immediate working setup after a reboot."
+    (interactive)
+    (if virtualenv-workon-session
+        (progn
+          (pony-runserver)
+          (pony-manage-run '("celeryd" "-lINFO" "--traceback" "--autoreload"))
+          (pony-shell)
+          (sql-mysql))
+      (error "setup your virtualenv first")))
+#+end_src
+** Interactive Shell prompts
+A few configurations and custom defined shell methods for
+eshell. Eshell is a terminal replacement implemented entirely in
+elisp. This sounds weird. It is weird. It has the benefit of having
+elisp as a first class language so you can do things like: ~cat
+foo/bar/baz > (switch-to-buffer "*test*")~ which opens the file
+contents in a new buffer names ~*test*~. 
+#+begin_src emacs-lisp :tangle yes
+  (if (file-exists-p "~/.shell/variables")
+      ;; TODO: load $PATH from that file.
+      ;; TODO: Add $PATH to exec-path
+      nil)
+  
+  ;;; Necessary to make some modes aware of binaries, such as sql-mysql
+  (push "/usr/local/bin" exec-path)
+  
+  (setenv "PATH" (concat (getenv "PATH") ":" "/usr/local/bin"))
+  
+  ;; if OSX...
+  (if (equal window-system 'ns)
+      (push "/Applications/Emacs.app/Contents/MacOS/bin" exec-path)) 
+  
+  (defun if-string-match-then-result (to-match pairs)
+    "Takes a string to match and a list of pairs, the first element
+  of the pairs is a regexp to test against the string, the second of
+  which is a return value if it matches."
+    (catch 'break
+      (dolist (val pairs)
+        (if (string-match-p (car val) to-match)
+            (progn
+              (throw 'break (cadr val)))))
+      (throw 'break nil)))
+  
+  (setq eshell-history-size nil) ;; sets it to $HISTSIZE
+  
+  (defun eshell/extract (file)
+    (eshell-command-result (concat (if-string-match-then-result
+                                    file
+                                    '((".*\.tar.bz2" "tar xjf")
+                                      (".*\.tar.gz" "tar xzf")
+                                      (".*\.bz2" "bunzip2")
+                                      (".*\.rar" "unrar x")
+                                      (".*\.gz" "gunzip")
+                                      (".*\.tar" "tar xf")
+                                      (".*\.tbz2" "tar xjf")
+                                      (".*\.tgz" "tar xzf")
+                                      (".*\.zip" "unzip")
+                                      (".*\.jar" "unzip")
+                                      (".*\.Z" "uncompress")
+                                      (".*" "echo 'Could not extract the requested file:'")))
+                         " " file)))
+  
+  (defun mass-create-eshells (names)
+    "Creates several eshells at once with the provided names. Names
+  are surrounded in astrisks."
+    (dolist (name names)
+      (let ((eshell-buffer-name (concat "*" name "*")))
+        (eshell))))
+  
+  (defun eshell/clear ()
+    "clear the eshell buffer."
+    (interactive)
+    (let ((inhibit-read-only t))
+      (erase-buffer)))
+  
+  (defun eshell/mcd (dir)
+    "make a directory and cd into it"
+    (interactive)
+    (eshell/mkdir "-p" dir)
+    (eshell/cd dir))
+  
+  (defun eshell/git-delete-unreachable-remotes ()
+    "Delete remote git branches which have been merged into master"
+    (interactive)
+    (if (not (string-equal "master" (magit-get-current-branch)))
+        (message "Not on master. This probably doesn't do what you want."))
+    (shell-command "git branch -r --merged | grep -v '/master$' | sed -E 's/origin\\/(.*)/:\\1/' | xargs git push origin"))
+  
+#+end_src
+
+** Javascript
+Some generic javascript setup. There's a really neat thing called
+slime-js which I haven't setup yet. It allows you to have a slime
+process tied to a javascript REPL. The uptick of this is that you can
+also have that REPL tied to chrome's web inspector so the javascript
+you evaluate in it are also in the context of the currently opened
+webpage. I'm not yet sure how this will work in the context of our
+backbone app which uses closures everywhere, but we'll see.
+#+begin_src emacs-lisp :tangle yes
+  (setq js-indent-level 2)
+  (add-hook 'js-mode-hook (lambda ()
+                            (paredit-mode -1)))
+  (require 'slime-js)
+#+end_src
+** Java
+I programmed Java with Emacs at Google on and off for 2 years
+(swapping between Eclipse on occasion). Thanks to some awesome tools
+they have internally, it was pretty great. Similar to programming
+Python in emacs with an up-to-date TAGS file. I don't know that I'd do
+it outside of Google beyond a super tiny project, but the slowness of
+the custom eclipse plugin they had was just really difficult for me to
+cope with.
+#+begin_src emacs-lisp :tangle yes
+  (defun get-java-project-root ()
+    "Override-able java project root which I override elsewhere"
+    "")
+  
+  (defun find-java-imports (tag)
+    "Slightly confusing bash command which will search for java
+  imports in your `get-java-project-root` directory and present you
+  with a list of options sorted in most-used order. It does not
+  insert them into the buffer, however."
+    (let* ((command (concat
+                     ;;; find all java files in project root (excluding symlinks)
+                     "find -P " (get-java-project-root) " -name '*.java' -type f | "
+                     ;;; filter out imports that match tag
+                     "xargs grep -h 'import .*\\." tag ";' "
+                     ;;; group occurrences, count unique entries, then sort DESC
+                     " | sort | uniq -c | sort -nr "
+                     ;;; trim whitespace and ditch the count
+                     " | sed 's/^\s*//' | cut -f2- -d ' '"))
+           (message command)
+           (results (shell-command-to-string command)))
+      (if (not (eq 0 (length results)))
+          (split-string
+           (replace-regexp-in-string
+            ";" "" (replace-regexp-in-string "import " "" results))
+           "\n" t))))
+
+  (add-hook 'java-mode-hook (lambda ()
+                              (setq c-basic-offset 2)
+                              (setq fill-column 100)
+                              (fci-mode t)
+                              (subword-mode t)
+                              (local-set-key (kbd "C-M-h") 'windmove-left)
+                              (hs-minor-mode 1)))
+
+#+end_src
+** Miscellaneous stuff
+*** Dedicated Mode
+Dedicated mode fixes the issue in which emacs spawns a new window (for
+tab completion or help, for instance) and it replaces an existing
+buffer you had open which you wanted to be persistent. If you turn on
+the dedicated minor-mode, none of those transient buffers will open up
+over those buffers.
+#+begin_src emacs-lisp :tangle yes
+(require 'dedicated) ;; sticky windows
+#+end_src
+*** Fill Column Indicator
+Fill column indicator will show you the current fill-column as a
+vertical line in your buffers. This is helpful for making sure your
+code doesn't go over 80 characters wide for things like python.
+#+begin_src emacs-lisp :tangle yes
+(require 'fill-column-indicator) ;; line indicating some edge column
+#+end_src
+*** scpaste
+SCPaste is sort of like gists, but it uploads the paste to your own
+server. It was particularly helpful when dealing with things at Google
+when I couldn't post it publically (or even privately to an external
+service). One of the neat things it does is it uses your color scheme
+(if you use a colored emacs) in the paste.
+#+begin_src emacs-lisp :tangle yes
+  ;; scpaste
+  (setq scpaste-http-destination "http://caesium.justinlilly.com/pastes"
+        scpaste-scp-destination "justinlilly@caesium.justinlilly.com:/var/www/blog/pastes")
+#+end_src
+
+*** Keybindings
+Just a few custom keybindings I have. The big ones here are my window
+moving commands. The emacs default is ~C-x o~ which will progress
+through the windows in some semi-sane order one at a time. What I find
+myself actually wanting is something akin to vim movement
+commands. The unfortunate situation is that the key-bindings I'm using
+aren't in the space of keybindings reserved for users to
+override. This has the unfortunate side effect of meaning that I need
+to override it in a half a dozen different modes. I'm still looking
+for a better solution. I think it might be to use the super key which
+is still reserved but less likely to be used.
+#+begin_src emacs-lisp :tangle yes
+  ;; Vim style keyboard moving
+  (global-set-key (kbd "C-M-l") 'windmove-right)
+  (global-set-key (kbd "C-M-h") 'windmove-left)
+  (global-set-key (kbd "C-M-j") 'windmove-down)
+  (global-set-key (kbd "C-M-k") 'windmove-up)
+  (global-set-key (kbd "C-c g") 'recompile)
+  (global-unset-key (kbd "C-x m")) ; I don't use mail
+  (global-unset-key (kbd "C-z")) ; suspending frame is useless with emacsclient and/or tmux
+  (add-hook 'perl-mode-hook (lambda ()
+                              (local-set-key (kbd "C-M-h") 'windmove-left)))
+  (add-hook 'ruby-mode-hook (lambda ()
+                              (local-set-key (kbd "C-M-h") 'windmove-left)))
+  (add-hook 'c-mode-common-hook (lambda ()
+                                  (local-set-key (kbd "C-M-h") 'windmove-left)))
+  
+  
+#+end_src
+
+** Emacs Built-ins
+*** tramp
+Tramp is one of those features that you don't really make use of in
+the beginning, but as you get more familiar with it, the more
+indespensible it is. Tramp allows you to edit files on remote servers
+as if they were on your local machine. From the find-file prompt, you
+can type things like: ~/ssh:user@host:/home/user/myfile.txt~ which
+will ssh in to host as user and open up myfile.txt in emacs. When you
+save, changes are pushed back to the remote host. You can also edit
+files as root (I do it via sudo) like ~/sudo:host:/etc/nginx/nginx.conf~
+
+If I access something via ~root@host~, actually ssh into the service
+using my default username (which is the username of my current system
+user) and sudo to root. I disable root access on my servers (Ubuntu
+default) which stops a reasonable number of attacks.
+#+begin_src emacs-lisp :tangle yes
+(require 'tramp) 
+
+; if I use tramp to access /ssh:root@..., then actually ssh into it
+;; and sudo, not login as root.
+(set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/sudo:%h:"))))
+#+end_src
+*** server-mode
+Emacs has this really interesting feature called server-mode. Emacs is
+notoriously slow to start (this happens if you have a giant emacs
+config that does stupid things). To combat this, you can start a
+single server process which will accept multiple clients. The server
+maintains the state of everything (files open, variables defined,
+processes running) and your client can attach / disconnect as
+necessary. The connecting is super fast (vim speeds).
+
+#+begin_src emacs-lisp :tangle yes
+(if (not server-mode)
+    (server-start nil t))
+#+end_src
+*** ERC
+ERC is an IRC mode for emacs. Its nothing special. ZNC is a plugin
+which makes it simpler to connect to a ZNC server. ZNC is an IRC
+bouncer, which is a long-running process which keeps you on IRC. You
+can join and quit as you like, but you stay online throughout. Very
+similar to emacs's server-mode. Thanks to [[http://bitprophet.org/][@bitprophet]] for letting me
+use his ZNC server.
+
+#+begin_src emacs-lisp :tangle yes
+;;; erc
+;; by default, erc alerts you on any activity. I only want to hear
+;; about mentions of nick or keyword
+(require 'znc)
+(setq erc-current-nick-highlight-type 'all)
+(setq erc-keywords '("jlilly"))
+(setq erc-track-exclude-types '("JOIN" "PART" "NICK" "MODE" "QUIT"))
+(setq erc-track-use-faces t)
+(setq erc-track-faces-priority-list
+      '(erc-current-nick-face erc-keyword-face))
+(setq erc-track-priority-faces-only 'all)
+#+end_src
+*** ibuffer
+Having lots of buffers is a pretty common occurance in emacs,
+especially with a long-lived emacs process thanks to server-mode. As
+I'm writing this, I have 616 buffers open in emacs. Managing all that
+is difficult without some really helpful tools. ido-mode gets most of
+the way there as I can fuzzy find buffers based on their filename (and
+parent directories in the case of duplicates). For other times, I turn
+to ibuffer which presents a list of buffers. You can group these based
+on several parameters. I tend to do it based on project path or major
+mode.
+#+begin_src emacs-lisp :tangle yes
+;; ibuffer configs
+(setq ibuffer-saved-filter-groups
+   '(("default"
+      ("sprintly-main" (filename . "/src/sprintly/sprint.ly/snowbird/"))
+      ("sprintly-js" (filename . "/src/sprintly/sprint.ly/html/"))
+      ("sprintly-misc" (filename . "/src/sprintly/sprint.ly/"))
+      ("sprintly-chef" (filename . "/src/sprintly/sprint.ly-chef/"))
+      ("irc" (mode . erc-mode))
+      ("background" (name . "^*.**$")))))
+
+
+(add-hook 'ibuffer-mode-hook ; refresh buffer groups on ibuffer mode.
+	  (lambda ()
+	    (ibuffer-switch-to-saved-filter-groups "default")))
+#+end_src
+
+** Undocumented
+These are things, for whatever reason, I haven't had a chance to
+document. Some of it, I forgot why I added it, but assume it was for a
+reason (I already feel ashamed. Let's not talk about it.) Others are
+temporary. The rest are so small, I didn't have much to say about
+them.
+#+begin_src emacs-lisp :tangle yes
+  (setq auto-mode-alist ;; files called .bashrc should be opened in sh-mode
+        (append
+         '(("\\.bashrc" . sh-mode))
+         auto-mode-alist))
+  
+  ;; tempfiles, stolen from github://defunkt/emacs
+  (defvar user-temporary-file-directory
+    (concat temporary-file-directory user-login-name "/"))
+  (make-directory user-temporary-file-directory t)
+  (setq backup-by-copying t
+        backup-directory-alist `(("." . ,user-temporary-file-directory))
+        auto-save-list-file-prefix (concat user-temporary-file-directory ".auto-saves-")
+        auto-save-file-name-transforms `((".*" ,user-temporary-file-directory)))
+  
+  
+  ;;; hooks
+  (add-hook 'dired-mode-hook (lambda ()
+                               (dired-omit-mode 1)
+                               (load "dired-x")))
+  
+  ;; scala
+  (let ((ensime-load-path "~/src/ensime/elisp/")
+        (sbt-bin "~/bin/")
+        (scala-bin "~/src/scala-2.9.2/bin/"))
+    (if (file-exists-p ensime-load-path)
+        (progn
+          (add-to-list 'load-path ensime-load-path)
+          (require 'scala-mode)
+          (require 'ensime)
+          (push scala-bin exec-path)
+          (push sbt-bin exec-path)
+          (add-to-list 'auto-mode-alist '("\\.scala$" . scala-mode))
+          (add-hook 'scala-mode-hook '(lambda ()
+                                        (scala-mode-feature-electric-mode)
+                                        ))
+  
+          
+          (add-hook 'scala-mode-hook 'ensime-scala-mode-hook))))
+  
+  
+  ;; org mode
+  (setq org-todo-keywords
+        '((sequence "TODO" "WAITING" "DONE")))
+  
+  ;; minibuffer command history
+  (setq savehist-additional-variables    ;; also save...
+    '(search-ring regexp-search-ring)    ;; ... my search entries
+    savehist-file "~/.emacs.d/savehist") ;; keep my home clean
+  (savehist-mode t)                      ;; do customization before activate
+  
+  (defun jump-to-next-char (c &optional count)
+    "Jump forward or backward to a specific character.  With a
+  count, move that many copies of the character."
+    (interactive "cchar: \np")
+    (when (string= (string c) (buffer-substring (point) (+ 1 (point))))
+      (setq count (+ 1 count)))
+    (and
+     (search-forward (string c) nil t count)
+     (> count 0)
+     (backward-char)))
+  (global-set-key (kbd "C-:") 'jump-to-next-char)
+  
+  (setq compilation-scroll-output 'first-error)
+  
+  ;; turning on autofill everywhere seems to give errors like "error in
+  ;; process filter: Wrong type argument: stringp, nil" and other randomness.
+  (remove-hook 'text-mode-hook 'turn-on-auto-fill)
+  
+  (put 'upcase-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
+  (put 'set-goal-column 'disabled nil)
+  (put 'narrow-to-region 'disabled nil)
+  
+  (if (file-exists-p "./secrets.el")
+      (load-file "./secrets.el"))
+
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(custom-safe-themes (quote ("159bb8f86836ea30261ece64ac695dc490e871d57107016c09f286146f0dae64" "5e1d1564b6a2435a2054aa345e81c89539a72c4cad8536cfe02583e0b7d5e2fa" "211bb9b24001d066a646809727efb9c9a2665c270c753aa125bace5e899cb523" "5727ad01be0a0d371f6e26c72f2ef2bafdc483063de26c88eaceea0674deb3d9" "30fe7e72186c728bd7c3e1b8d67bc10b846119c45a0f35c972ed427c45bacc19" default)))
+   '(display-time-mode t)
+   '(elisp-cache-byte-compile-files nil)
+   '(erc-truncate-mode t)
+   '(google-imports-file-for-tag (quote (("ServiceException" . "javax.xml.rpc.ServiceException") ("MalformedURLException" . "java.net.MalformedURLException") ("URL" . "java.net.URL") ("Named" . "com.google.inject.name.Named") ("Inject" . "com.google.inject.Inject") ("FormattingLogger" . "java/com/google/common/logging/FormattingLogger.java"))))
+   '(grok-auto-patch-buffers t)
+   '(grok-sloppy-editing t)
+   '(menu-bar-mode nil)
+   '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
+   '(safe-local-variable-values (quote ((virtualenv-default-directory . "/Users/justinlilly/src/prbot/") (virtualenv-workon . "prbot") (Mode . js))))
+   '(tool-bar-mode nil)
+   '(znc-servers (quote (("comms.bitprophet.org" 7777 t ((freenode "justinlilly" znc-password)))))))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(mode-line-inactive ((t (:inherit mode-line :background "color-20" :foreground "white" :box (:line-width -1 :color "grey40") :weight light)))))
+#+end_src
