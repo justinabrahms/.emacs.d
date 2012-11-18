@@ -114,13 +114,13 @@ highlighting bugs where the buffer won't fully fill out.
 #+begin_src emacs-lisp :tangle yes
   ;; python
   (require 'python-mode)
-
+  
   (add-hook 'python-mode-hook (lambda () 
                                 ;; This breaks the blog export, as the
                                 ;; python snippet doesn't actually have
                                 ;; a filename. Need to investigate
                                 ;; flycheck for options.
-                                ;; (flycheck-mode -1)
+                                (flycheck-mode -1)
                                 (fci-mode 1)))
 #+end_src
 
