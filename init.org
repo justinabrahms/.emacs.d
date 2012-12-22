@@ -150,14 +150,14 @@ filter it out when determining app names.
     "Return the name of the current app, or nil if no app
   found. Corrects for excluded prefix."
     (let* ((root (pony-project-root))
-       (excluded-prefix (if (nil-blank-string pony-app-dir-prefix)
+       (excluded-prefix (if (not (= (length pony-app-dir-prefix) 0)))
                     (concat root pony-app-dir-prefix "/")
                   root))
            (re (concat "^" (regexp-quote excluded-prefix) "\\([A-Za-z_]+\\)/"))
            (path (or buffer-file-name (expand-file-name default-directory))))
       (when (string-match re path)
-        (match-string 1 path))))
-
+        (match-string 1 path)))
+  
   (defun pony-time ()
     "Helper function to get an immediate working setup after a reboot."
     (interactive)
