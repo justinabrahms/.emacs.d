@@ -268,6 +268,31 @@ backbone app which uses closures everywhere, but we'll see.
   (add-hook 'javascript-mode-hook
             (lambda () (flymake-mode t)))
 #+end_src
+** CSS & other general bits.
+CSS mode is pretty well done. Just change the indentation to 2 spaces
+rather than 4.
+#+begin_src emacs-lisp :tangle yes
+  (setq css-indent-offset 2)
+#+end_src
+web-mode is an interesting new mode which bridges the gap with
+mixed-content template code. You get handy html syntax highlighting
+and basic controls, while simultaneously getting some help in the
+template code. This mostly manifests as control structures, pairing of
+open parens, etc.
+#+begin_src emacs-lisp
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.hb\\.html\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsp\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+
+;; everything is indented 2 spaces
+(setq web-mode-markup-indent-offset 2)
+(setq web-mode-css-indent-offset 2)
+(setq web-mode-code-indent-offset 2)
+#+end_src
 ** Java
 I programmed Java with Emacs at Google on and off for 2 years
 (swapping between Eclipse on occasion). Thanks to some awesome tools
