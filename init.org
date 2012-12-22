@@ -262,6 +262,11 @@ backbone app which uses closures everywhere, but we'll see.
   (add-hook 'js-mode-hook (lambda ()
                             (paredit-mode -1)))
   (require 'slime-js)
+  
+  (add-to-list 'load-path "~/.emacs.d/vendor/jshint-mode")
+  (require 'flymake-jshint)
+  (add-hook 'javascript-mode-hook
+            (lambda () (flymake-mode t)))
 #+end_src
 ** Java
 I programmed Java with Emacs at Google on and off for 2 years
