@@ -472,9 +472,9 @@ them.
   
   
   ;;; hooks
+  (require 'dired-x)
   (add-hook 'dired-mode-hook (lambda ()
-                               (dired-omit-mode 1)
-                               (load "dired-x")))
+                               (dired-omit-mode 1)))
   
   ;; scala
   (let ((ensime-load-path "~/src/ensime/elisp/")
