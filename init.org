@@ -456,6 +456,14 @@ reason (I already feel ashamed. Let's not talk about it.) Others are
 temporary. The rest are so small, I didn't have much to say about
 them.
 #+begin_src emacs-lisp :tangle yes
+  (setq path-to-etags "/Applications/Emacs.app/Contents/MacOS/bin/etags")
+  
+  (defun create-tags (dir-name)
+    "Create tags file."
+    (interactive "DDirectory: ")
+    (shell-command
+     (format "find %s -type f | xargs %s -a -o %s/TAGS" dir-name path-to-etags dir-name)))
+  
   (setq auto-mode-alist ;; files called .bashrc should be opened in sh-mode
         (append
          '(("\\.bashrc" . sh-mode))
