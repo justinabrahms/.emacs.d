@@ -545,7 +545,7 @@ them.
    '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
    '(safe-local-variable-values (quote ((virtualenv-default-directory . "/Users/justinlilly/src/prbot/") (virtualenv-workon . "prbot") (Mode . js))))
    '(tool-bar-mode nil)
-   '(znc-servers (quote (("comms.bitprophet.org" 7777 t ((freenode "justinlilly" znc-password)))))))
+   '(znc-servers `(("comms.bitprophet.org" 7777 t ((freenode "justinlilly" ,znc-password))))))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.
