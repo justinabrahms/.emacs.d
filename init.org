@@ -5,10 +5,13 @@ This is my emacs configuration, as typed in org-babel. Its a form of
 literate programming which is really nice in that it basically goads
 me into writing a better documented emacs config.
 ** TODOs
-- it would be nice to build my tags via a key command. append-to: /path/to/file  from directory: /path/to/   
 - persistent eshell history (maybe it pulls in normal shell history too)
-- good situation for sshing into other machines
+- good situation for sshing into other machines (ansi-term?)
 - implement ffap for python.
+- find-grep ignores pyc files & specific directories (build)
+- sql format tool
+- flycheck + pythonpath + venv isn't handled properly.
+- magit commit is slow. fix that.
 ** Setup package.el
 package.el is a package manager for emacs modes. It is official in
 emacs-24, but is back ported to emacs23. The setup for single files is
@@ -33,22 +36,22 @@ Get an up-to-date list of packages available to us if a cached copy
 doesn't exist. Then loop over the list of packages we want around and
 install them.
 #+begin_src emacs-lisp :tangle yes
-(when (not package-archive-contents)
-  (package-refresh-contents))
-
-(defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
-			    org paredit protobuf-mode rainbow-delimiters scpaste
-                            ;; something in ESK is breaking ido for me
-			    ;; starter-kit-lisp starter-kit-js starter-kit-eshell
-			    idle-highlight-mode go-mode flymake-cursor dired-single
-                            scratch dizzee ctags-update virtualenv
-			    pastels-on-dark-theme textmate pony-mode
-			    fill-column-indicator flycheck)
-  "A list of packages to ensure are installed at launch.")
-
-(dolist (p my-packages)
-  (when (not (package-installed-p p))
-    (package-install p)))
+  (when (not package-archive-contents)
+    (package-refresh-contents))
+  
+  (defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
+                              org paredit protobuf-mode rainbow-delimiters scpaste
+                              ;; something in ESK is breaking ido for me
+                              ;; starter-kit-lisp starter-kit-js starter-kit-eshell
+                              idle-highlight-mode go-mode flymake-cursor dired-single
+                              scratch dizzee ctags-update virtualenv websocket
+                              pastels-on-dark-theme textmate pony-mode
+                              fill-column-indicator flycheck)
+    "A list of packages to ensure are installed at launch.")
+  
+  (dolist (p my-packages)
+    (when (not (package-installed-p p))
+      (package-install p)))
 #+end_src
 
 ** Generic Emacs Stuff
