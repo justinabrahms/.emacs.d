@@ -308,6 +308,16 @@ cope with.
 
 #+end_src
 ** Miscellaneous stuff
+*** encryption mode
+I keep a file around of encrypted passwords that emacs needs to know about
+(simple stuff like IRC server password). I store that in a gpg encrypted file.
+Thankfully, emacs has nifty ways of building that stuff in.
+
+#+begin_src emacs-lisp :tangle yes
+  (require 'epa)
+  (epa-file-enable)
+  (setq epg-gpg-program "gpg")
+#+end_src
 *** Dedicated Mode
 Dedicated mode fixes the issue in which emacs spawns a new window (for
 tab completion or help, for instance) and it replaces an existing
