@@ -122,9 +122,14 @@ highlighting bugs where the buffer won't fully fill out.
                                 ;; This breaks the blog export, as the
                                 ;; python snippet doesn't actually have
                                 ;; a filename. Need to investigate
-                                ;; flycheck for options.
-                                (flycheck-mode -1)
+                                ;; flycheck for options. We'll just
+                                ;; spawn a new emacs without this
+                                ;; enabled for now.
+                                (setq fill-column 80)
+                                (flycheck-mode 1)
                                 (fci-mode 1)))
+  
+  (add-to-list 'auto-mode-alist '("\\.py" . python-mode))
 #+end_src
 
 Virtualenv is a tool in the python community which sorts out your
