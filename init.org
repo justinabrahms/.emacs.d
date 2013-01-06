@@ -44,14 +44,15 @@ install them.
                               ;; something in ESK is breaking ido for me
                               ;; starter-kit-lisp starter-kit-js starter-kit-eshell
                               idle-highlight-mode go-mode flymake-cursor dired-single
-                              scratch dizzee ctags-update virtualenv websocket
-                              pastels-on-dark-theme textmate pony-mode
-                              fill-column-indicator flycheck)
+                              scratch dizzee ctags-update virtualenv websocket znc
+                              pastels-on-dark-theme textmate pony-mode slime flymake-jshint
+                              fill-column-indicator flycheck python-mode)
     "A list of packages to ensure are installed at launch.")
   
   (dolist (p my-packages)
     (when (not (package-installed-p p))
       (package-install p)))
+  
 #+end_src
 
 ** Generic Emacs Stuff
@@ -266,7 +267,6 @@ backbone app which uses closures everywhere, but we'll see.
   (setq js-indent-level 2)
   (add-hook 'js-mode-hook (lambda ()
                             (paredit-mode -1)))
-  (require 'slime-js)
   
   (add-to-list 'load-path "~/.emacs.d/vendor/jshint-mode")
   (require 'flymake-jshint)
@@ -582,10 +582,11 @@ them.
   (put 'set-goal-column 'disabled nil)
   (put 'narrow-to-region 'disabled nil)
   
-  (if (file-exists-p "~/.emacs.d/secrets.el.gpg")
-      (load-file "~/.emacs.d/secrets.el.gpg")
-    (if (file-exists-p "~/.emacs.d/secrets.el")
-        (load-file "~/.emacs.d/secrets.el")))
+  (ignore-errors
+    (if (file-exists-p "~/.emacs.d/secrets.el.gpg")
+        (load-file "~/.emacs.d/secrets.el.gpg")
+      (if (file-exists-p "~/.emacs.d/secrets.el")
+          (load-file "~/.emacs.d/secrets.el"))))
   
   (custom-set-variables
    ;; custom-set-variables was added by Custom.
@@ -610,4 +611,5 @@ them.
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
    '(mode-line-inactive ((t (:inherit mode-line :background "color-20" :foreground "white" :box (:line-width -1 :color "grey40") :weight light)))))
+  
 #+end_src
