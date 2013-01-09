@@ -252,6 +252,16 @@ contents in a new buffer names ~*test*~.
     (if (not (string-equal "master" (magit-get-current-branch)))
         (message "Not on master. This probably doesn't do what you want."))
     (shell-command "git branch -r --merged | grep -v '/master$' | sed -E 's/origin\\/(.*)/:\\1/' | xargs git push origin"))
+#+end_src
+Emacs seems to have difficulty getting the proper PATH variable set. I
+managed to find this snippet at http://emacswiki.org/emacs/EmacsApp
+which seems to fix things.
+#+begin_src emacs-lisp :tangle yes
+  (if (not (getenv "TERM_PROGRAM"))
+      (let ((path (shell-command-to-string
+                 "source $HOME/.shell/variables && printf %s \"\$PATH\"")))
+        (setenv "PATH" path)
+        (setq exec-path (split-string path ":"))))
   
 #+end_src
 
