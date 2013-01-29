@@ -274,6 +274,7 @@ you evaluate in it are also in the context of the currently opened
 webpage. I'm not yet sure how this will work in the context of our
 backbone app which uses closures everywhere, but we'll see.
 #+begin_src emacs-lisp :tangle yes
+  (setq-default js2-basic-offset 2)
   (setq js-indent-level 2)
   (add-hook 'js-mode-hook (lambda ()
                             (paredit-mode -1)))
