@@ -314,7 +314,7 @@ mixed-content template code. You get handy html syntax highlighting
 and basic controls, while simultaneously getting some help in the
 template code. This mostly manifests as control structures, pairing of
 open parens, etc.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.hb\\.html\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
