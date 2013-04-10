@@ -507,9 +507,8 @@ mode.
 	    (ibuffer-switch-to-saved-filter-groups "default")))
 #+end_src
 
-
 ** Fancy Macros
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
   (fset 'testify
      (lambda (&optional arg) "Converts test words into actual test functions.
   
