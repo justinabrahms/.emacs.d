@@ -424,6 +424,24 @@ is still reserved but less likely to be used.
   
 #+end_src
 
+*** Platform Hacks
+Using Emacs from within the terminal in OSX completely breaks
+copy+paste support. This chunk of code from emacswiki restores it.
+#+begin_src emacs-lisp :tangle yes
+  (defun copy-from-osx ()
+    (shell-command-to-string "pbpaste"))
+  
+  (defun paste-to-osx (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+        (process-send-string proc text)
+        (process-send-eof proc))))
+  (if (eq system-type 'darwin)
+      (progn
+        (setq interprogram-cut-function 'paste-to-osx)
+        (setq interprogram-paste-function 'copy-from-osx)))
+#+end_src
+
 ** Emacs Built-ins
 *** tramp
 Tramp is one of those features that you don't really make use of in
