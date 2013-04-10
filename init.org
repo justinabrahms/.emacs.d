@@ -83,6 +83,8 @@ inline.
 
 (ido-mode t);; fuzzy matching on find-file, buffer switch
 (setq ido-enable-flex-matching t)
+(add-to-list 'ido-ignore-files "\\.pyc")
+
 #+end_src
 
 ** Lisp
