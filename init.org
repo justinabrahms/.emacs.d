@@ -607,7 +607,8 @@ them.
   (put 'set-goal-column 'disabled nil)
   (put 'narrow-to-region 'disabled nil)
   
-  (ignore-errors
+  (defun load-secrets ()
+    (interactive)
     (if (file-exists-p "~/.emacs.d/secrets.el.gpg")
         (load-file "~/.emacs.d/secrets.el.gpg")
       (if (file-exists-p "~/.emacs.d/secrets.el")
