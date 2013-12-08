@@ -12,6 +12,7 @@ me into writing a better documented emacs config.
 - sql format tool
 - flycheck + pythonpath + venv isn't handled properly.
 - magit commit is slow. fix that.
+- use find-java-imports to lookup require statements from our code.
 ** Setup package.el
 package.el is a package manager for emacs modes. It is official in
 emacs-24, but is back ported to emacs23. The setup for single files is
@@ -43,10 +44,16 @@ install them.
                               org paredit protobuf-mode rainbow-delimiters scpaste
                               ;; something in ESK is breaking ido for me
                               ;; starter-kit-lisp starter-kit-js starter-kit-eshell
-                              idle-highlight-mode go-mode flymake-cursor dired-single
                               scratch dizzee ctags-update virtualenv websocket znc
                               pastels-on-dark-theme textmate pony-mode slime flymake-jshint
-                              fill-column-indicator flycheck python-mode)
+                              idle-highlight-mode flymake-cursor dired-single
+                              flymake-less less-css-mode css-eldoc
+                              pastels-on-dark-theme textmate pony-mode
+                              fill-column-indicator flycheck flymake-jshint
+                              auto-complete
+
+                              go-mode go-eldoc go-autocomplete ; golang
+                              )
     "A list of packages to ensure are installed at launch.")
   
   (dolist (p my-packages)
@@ -111,6 +118,10 @@ pretty important. It has a lot of mini-refactoring commands built-in
 (pull up, add parameter, etc) but I always forget them because I don't
 write lisp enough to commit it to memory.
 
+eldoc mode is will update your minibuffer to show the parameters the
+function under your cursor takes, which can be a helpful for jogging
+your memory.
+
 #+begin_src emacs-lisp :tangle yes
 (eval-after-load 'paredit
   ;; need a binding that works in the terminal
@@ -118,6 +129,12 @@ write lisp enough to commit it to memory.
 
 (show-paren-mode 1)  ;; highlight matching parenthasis
 (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+
+;; nifty documentation at point for lisp files
+(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
+
 #+end_src
 
 Slime is the big part of a lisp IDE. Its a process that runs an
@@ -297,18 +314,112 @@ backbone app which uses closures everywhere, but we'll see.
   (setq js-indent-level 2)
   (add-hook 'js-mode-hook (lambda ()
                             (paredit-mode -1)))
+<<<<<<< HEAD
+=======
+  ;; (require 'slime-js)
+
+
+(defun find-imports (ext import-syntax-fn root tag)
+  "Searches for occurrences of `tag` in files under `root` with extension `ext`
+
+  Slightly confusing bash command which will search for java
+  imports in your `get-java-project-root` directory and present you
+  with a list of options sorted in most-used order. It does not
+  insert them into the buffer, however.
+
+  import-syntax-fn is a fn, given a tag, which returns an line of import code.
+
+  returns a list of strings indicating used imports, most used first
+  "
+>>>>>>> who even knows? At minimum some golang nicities.
   
-  (add-to-list 'load-path "~/.emacs.d/vendor/jshint-mode")
-  (require 'flymake-jshint)
-  (add-hook 'javascript-mode-hook
-            (lambda () (flymake-mode t)))
+
+  (let* ((command (concat
+                     ;;; find all java files in project root (excluding symlinks)
+                   "find -P " root " -name '*." ext "' -type f | "
+                     ;;; filter out imports that match tag
+                   "xargs grep -h '" (funcall import-syntax-fn tag) "' "
+                     ;;; group occurrences, count unique entries, then sort DESC
+                   " | sort | uniq -c | sort -nr "
+                     ;;; trim whitespace and ditch the count
+                   " | sed 's/^\s*//' | cut -f2- -d ' '"))
+         (results (shell-command-to-string command)))
+    (progn
+      (message command)
+      (if (not (eq 0 (length results)))
+          (split-string
+           results
+           "\n" t)))))
+
+(defun copy-js-imports ()
+  (interactive)
+  (kill-new
+   (first (find-imports "js" 
+                        (lambda (tag) (concat tag " = require")) 
+                        (textmate-project-root) (thing-at-point 'word)))))
+
+
+
 #+end_src
+In order to maintain consistentcy with the company style-guide, we use
+jshint to highlight weird syntax errors. The
+~jshint-configuration-path~ variable lives in a [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Directory-Local-Variables.html][directory local
+variable]] which points to the project's jshintrc.
+#+begin_src emacs-lisp :tangle yes
+  (require 'flymake-jshint)
+  (add-hook 'js-mode-hook 'flymake-jshint-load)
+  (add-hook 'js-mode-hook 'flymake-mode)
+#+end_src
+
+A handy utility that will take a region and format is as JSON with nice indentation.
+#+begin_src emacs-lisp :tangle yes
+  (defun pretty-print-json(&optional b e)
+    "Shells out to Python to pretty print JSON" 
+    (interactive "r")
+    (shell-command-on-region b e "python -m json.tool" (current-buffer) t)
+  )
+  
+#+end_src
+** golang
+Go is nice enough to ship with a formatter. The least we could do is
+run it. Furthermore, there are helpful plugins around showing the
+method parameters via eldoc. This requires us to set up our exec-path
+to point to the ~gocode~ binary, which can be found [[https://github.com/nsf/gocode][here]]. I haven't
+figured out a way to do this that supports the way I do ~GOPATH~ (i.e.
+different one per project). Following along with ~gocode~, that
+library provides an autocomplete setup, which I'd like to use.
+#+begin_src emacs-lisp :tangle yes
+;; based on the assumption that the following repos are installed and
+;; available on exec-path
+;; 
+;; - github.com/nsf/gocode
+;; - github.com/bradfitz/goimports
+;; - code.google.com/p/rog-go/exp/cmd/godef
+
+(add-hook 'before-save-hook #'gofmt-before-save)
+(require 'go-eldoc)
+(add-hook 'go-mode-hook 'go-eldoc-setup)
+
+(require 'go-autocomplete)
+(require 'auto-complete-config)
+(setq gofmt-command "goimports")
+
+#+end_src
+
 ** CSS & other general bits.
 CSS mode is pretty well done. Just change the indentation to 2 spaces
 rather than 4.
 #+begin_src emacs-lisp :tangle yes
   (setq css-indent-offset 2)
 #+end_src
+
+Linting is important in all languages, even CSS.
+#+begin_src emacs-lisp :tangle yes
+(require 'flymake-less)
+(require 'css-eldoc)
+#+end_src
+
+
 web-mode is an interesting new mode which bridges the gap with
 mixed-content template code. You get handy html syntax highlighting
 and basic controls, while simultaneously getting some help in the
@@ -339,39 +450,14 @@ it outside of Google beyond a super tiny project, but the slowness of
 the custom eclipse plugin they had was just really difficult for me to
 cope with.
 #+begin_src emacs-lisp :tangle yes
-  (defun get-java-project-root ()
-    "Override-able java project root which I override elsewhere"
-    "")
-  
-  (defun find-java-imports (tag)
-    "Slightly confusing bash command which will search for java
-  imports in your `get-java-project-root` directory and present you
-  with a list of options sorted in most-used order. It does not
-  insert them into the buffer, however."
-    (let* ((command (concat
-                     ;;; find all java files in project root (excluding symlinks)
-                     "find -P " (get-java-project-root) " -name '*.java' -type f | "
-                     ;;; filter out imports that match tag
-                     "xargs grep -h 'import .*\\." tag ";' "
-                     ;;; group occurrences, count unique entries, then sort DESC
-                     " | sort | uniq -c | sort -nr "
-                     ;;; trim whitespace and ditch the count
-                     " | sed 's/^\s*//' | cut -f2- -d ' '"))
-           (message command)
-           (results (shell-command-to-string command)))
-      (if (not (eq 0 (length results)))
-          (split-string
-           (replace-regexp-in-string
-            ";" "" (replace-regexp-in-string "import " "" results))
-           "\n" t))))
-
-  (add-hook 'java-mode-hook (lambda ()
-                              (setq c-basic-offset 2)
-                              (setq fill-column 100)
-                              (fci-mode t)
-                              (subword-mode t)
-                              (local-set-key (kbd "C-M-h") 'windmove-left)
-                              (hs-minor-mode 1)))
+(add-hook 'java-mode-hook (lambda ()
+                            (setq c-basic-offset 2)
+                            (setq fill-column 100)
+                            (fci-mode t)
+                            (subword-mode t)
+                            (local-set-key (kbd "C-M-h") 'windmove-left)
+                            (hs-minor-mode 1))
+          )
 
 #+end_src
 ** Miscellaneous stuff
@@ -385,6 +471,19 @@ Thankfully, emacs has nifty ways of building that stuff in.
   (epa-file-enable)
   (setq epg-gpg-program "gpg")
 #+end_src
+*** Flymake
+Navigating around flymake bits is a bit of a pain. This makes things a little easier.
+#+begin_src emacs-lisp :tangle yes
+(defun abrahms-flymake-show-error (prefix)
+  (interactive "p")
+  (if prefix
+      (flymake-goto-next-error)
+    (flymake-goto-prev-error))
+  (flymake-display-err-menu-for-current-line))
+
+(global-set-key "\C-c\C-v" 'abrahms-flymake-show-error)
+#+end_src
+
 *** Dedicated Mode
 Dedicated mode fixes the issue in which emacs spawns a new window (for
 tab completion or help, for instance) and it replaces an existing
@@ -440,6 +539,9 @@ is still reserved but less likely to be used.
   (add-hook 'c-mode-common-hook (lambda ()
                                   (local-set-key (kbd "C-M-h") 'windmove-left)))
   
+  (global-set-key (kbd "M-j") (lambda ()
+                                (interactive)
+                                (join-line -1)))
   
 #+end_src
 
@@ -505,17 +607,19 @@ similar to emacs's server-mode. Thanks to [[http://bitprophet.org/][@bitprophet]
 use his ZNC server.
 
 #+begin_src emacs-lisp :tangle yes
-;;; erc
-;; by default, erc alerts you on any activity. I only want to hear
-;; about mentions of nick or keyword
-(require 'znc)
-(setq erc-current-nick-highlight-type 'all)
-(setq erc-keywords '("jlilly"))
-(setq erc-track-exclude-types '("JOIN" "PART" "NICK" "MODE" "QUIT"))
-(setq erc-track-use-faces t)
-(setq erc-track-faces-priority-list
-      '(erc-current-nick-face erc-keyword-face))
-(setq erc-track-priority-faces-only 'all)
+  ;;; erc
+  ;; by default, erc alerts you on any activity. I only want to hear
+  ;; about mentions of nick or keyword
+  (if (fboundp 'znc)
+      (progn
+        (require 'znc)
+        (setq erc-current-nick-highlight-type 'all)
+        (setq erc-keywords '("jlilly"))
+        (setq erc-track-exclude-types '("JOIN" "PART" "NICK" "MODE" "QUIT"))
+        (setq erc-track-use-faces t)
+        (setq erc-track-faces-priority-list
+              '(erc-current-nick-face erc-keyword-face))
+        (setq erc-track-priority-faces-only 'all)))
 #+end_src
 *** ibuffer
 Having lots of buffers is a pretty common occurance in emacs,
@@ -528,20 +632,23 @@ to ibuffer which presents a list of buffers. You can group these based
 on several parameters. I tend to do it based on project path or major
 mode.
 #+begin_src emacs-lisp :tangle yes
-;; ibuffer configs
-(setq ibuffer-saved-filter-groups
-   '(("default"
-      ("sprintly-main" (filename . "/src/sprintly/sprint.ly/snowbird/"))
-      ("sprintly-js" (filename . "/src/sprintly/sprint.ly/html/"))
-      ("sprintly-misc" (filename . "/src/sprintly/sprint.ly/"))
-      ("sprintly-chef" (filename . "/src/sprintly/sprint.ly-chef/"))
-      ("irc" (mode . erc-mode))
-      ("background" (name . "^*.**$")))))
-
-
-(add-hook 'ibuffer-mode-hook ; refresh buffer groups on ibuffer mode.
-	  (lambda ()
-	    (ibuffer-switch-to-saved-filter-groups "default")))
+  ;; ibuffer configs
+  (setq ibuffer-saved-filter-groups
+     '(("default"
+        ("sprintly-main" (filename . "/src/sprintly/sprint.ly/snowbird/"))
+        ("sprintly-js" (filename . "/src/sprintly/sprint.ly/html/"))
+        ("sprintly-misc" (filename . "/src/sprintly/sprint.ly/"))
+        ("sprintly-chef" (filename . "/src/sprintly/sprint.ly-chef/"))
+        ("holiday-extras" (filename . "/src/holiday_extras/"))
+        ("glider" (filename . "/src/glider/"))
+        ("gitstreams" (filename . "/src/gitstreams/"))
+        ("irc" (mode . erc-mode))
+        ("background" (name . "^*.**$")))))
+  
+  
+  (add-hook 'ibuffer-mode-hook ; refresh buffer groups on ibuffer mode.
+            (lambda ()
+              (ibuffer-switch-to-saved-filter-groups "default")))
 #+end_src
 
 ** Fancy Macros
@@ -554,6 +661,15 @@ mode.
   python test methods."
        (interactive "p") (kmacro-exec-ring-item (quote ([100 101 102 32 116 101 115 116 95 67108896 5 134217765 32 return 95 return 33 5 40 115 101 108 102 41 58 return 32 32 32 32 112 97 115 115 return 14 1] 0 "%d")) arg)))
   
+#+end_src
+
+** Org-Mode
+When tangling Makefiles, it's important that we preserve indentation
+of the resulting file, else we'll lose the tabs that make it a valid
+Makefile. One of these days, I'll bother to go hunting for a better
+build tool that's installed on every system always.
+#+begin_src emacs-lisp :tangle yes
+(setq org-src-preserve-indentation t)
 #+end_src
 
 ** Undocumented
@@ -574,6 +690,7 @@ them.
   (setq auto-mode-alist ;; files called .bashrc should be opened in sh-mode
         (append
          '(("\\.bashrc" . sh-mode))
+         '(("Vagrantfile" . ruby-mode))
          auto-mode-alist))
   
   ;; tempfiles, stolen from github://defunkt/emacs
@@ -590,6 +707,11 @@ them.
   (require 'dired-x)
   (add-hook 'dired-mode-hook (lambda ()
                                (dired-omit-mode 1)))
+  
+  ;; Fantastic dired thing which will hide most `ls -l` output. 
+  ;; ) and ( to toggle it
+  (require 'dired-details)
+  (dired-details-install)
   
   ;; scala
   (let ((ensime-load-path "~/src/ensime/elisp/")
@@ -667,7 +789,7 @@ them.
    '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
    '(safe-local-variable-values (quote ((virtualenv-default-directory . "/Users/justinlilly/src/prbot/") (virtualenv-workon . "prbot") (Mode . js))))
    '(tool-bar-mode nil)
-   '(znc-servers `(("comms.bitprophet.org" 7777 t ((freenode "justinlilly" ,znc-password))))))
+   '(znc-servers `(("justin.abrah.ms" 6667 t ((freenode "justinabrahms_freenode" ,znc-password))))))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.
