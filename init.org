@@ -45,12 +45,12 @@ install them.
                               ;; something in ESK is breaking ido for me
                               ;; starter-kit-lisp starter-kit-js starter-kit-eshell
                               scratch dizzee ctags-update virtualenv websocket znc
-                              pastels-on-dark-theme textmate pony-mode slime flymake-jshint
+                              pastels-on-dark-theme textmate pony-mode slime
                               idle-highlight-mode flymake-cursor dired-single
                               flymake-less less-css-mode css-eldoc
                               pastels-on-dark-theme textmate pony-mode
-                              fill-column-indicator flycheck flymake-jshint
-                              auto-complete
+                              fill-column-indicator flycheck
+                              auto-complete yasnippet
 
                               go-mode go-eldoc go-autocomplete ; golang
                               )
@@ -310,65 +310,61 @@ you evaluate in it are also in the context of the currently opened
 webpage. I'm not yet sure how this will work in the context of our
 backbone app which uses closures everywhere, but we'll see.
 #+begin_src emacs-lisp :tangle yes
-  (setq-default js2-basic-offset 2)
-  (setq js-indent-level 2)
-  (add-hook 'js-mode-hook (lambda ()
-                            (paredit-mode -1)))
-<<<<<<< HEAD
-=======
-  ;; (require 'slime-js)
-
-
-(defun find-imports (ext import-syntax-fn root tag)
-  "Searches for occurrences of `tag` in files under `root` with extension `ext`
-
-  Slightly confusing bash command which will search for java
-  imports in your `get-java-project-root` directory and present you
-  with a list of options sorted in most-used order. It does not
-  insert them into the buffer, however.
-
-  import-syntax-fn is a fn, given a tag, which returns an line of import code.
-
-  returns a list of strings indicating used imports, most used first
-  "
->>>>>>> who even knows? At minimum some golang nicities.
+    (setq-default js2-basic-offset 2)
+    (setq js-indent-level 2)
+    (add-hook 'js-mode-hook (lambda ()
+                              (paredit-mode -1)))
+    ;; (require 'slime-js)
   
-
-  (let* ((command (concat
-                     ;;; find all java files in project root (excluding symlinks)
-                   "find -P " root " -name '*." ext "' -type f | "
-                     ;;; filter out imports that match tag
-                   "xargs grep -h '" (funcall import-syntax-fn tag) "' "
-                     ;;; group occurrences, count unique entries, then sort DESC
-                   " | sort | uniq -c | sort -nr "
-                     ;;; trim whitespace and ditch the count
-                   " | sed 's/^\s*//' | cut -f2- -d ' '"))
-         (results (shell-command-to-string command)))
-    (progn
-      (message command)
-      (if (not (eq 0 (length results)))
-          (split-string
-           results
-           "\n" t)))))
-
-(defun copy-js-imports ()
-  (interactive)
-  (kill-new
-   (first (find-imports "js" 
-                        (lambda (tag) (concat tag " = require")) 
-                        (textmate-project-root) (thing-at-point 'word)))))
-
-
-
+  
+  (defun find-imports (ext import-syntax-fn root tag)
+    "Searches for occurrences of `tag` in files under `root` with extension `ext`
+  
+    Slightly confusing bash command which will search for java
+    imports in your `get-java-project-root` directory and present you
+    with a list of options sorted in most-used order. It does not
+    insert them into the buffer, however.
+  
+    import-syntax-fn is a fn, given a tag, which returns an line of import code.
+  
+    returns a list of strings indicating used imports, most used first
+    "
+    
+  
+    (let* ((command (concat
+                       ;;; find all java files in project root (excluding symlinks)
+                     "find -P " root " -name '*." ext "' -type f | "
+                       ;;; filter out imports that match tag
+                     "xargs grep -h '" (funcall import-syntax-fn tag) "' "
+                       ;;; group occurrences, count unique entries, then sort DESC
+                     " | sort | uniq -c | sort -nr "
+                       ;;; trim whitespace and ditch the count
+                     " | sed 's/^\s*//' | cut -f2- -d ' '"))
+           (results (shell-command-to-string command)))
+      (progn
+        (message command)
+        (if (not (eq 0 (length results)))
+            (split-string
+             results
+             "\n" t)))))
+  
+  (defun copy-js-imports ()
+    (interactive)
+    (kill-new
+     (first (find-imports "js" 
+                          (lambda (tag) (concat tag " = require")) 
+                          (textmate-project-root) (thing-at-point 'word)))))
+  
+  
+  
 #+end_src
 In order to maintain consistentcy with the company style-guide, we use
 jshint to highlight weird syntax errors. The
 ~jshint-configuration-path~ variable lives in a [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Directory-Local-Variables.html][directory local
 variable]] which points to the project's jshintrc.
 #+begin_src emacs-lisp :tangle yes
-  (require 'flymake-jshint)
-  (add-hook 'js-mode-hook 'flymake-jshint-load)
-  (add-hook 'js-mode-hook 'flymake-mode)
+  (require 'flycheck)
+  (add-hook 'js-mode-hook 'flycheck-mode)
 #+end_src
 
 A handy utility that will take a region and format is as JSON with nice indentation.
@@ -400,6 +396,7 @@ library provides an autocomplete setup, which I'd like to use.
 (require 'go-eldoc)
 (add-hook 'go-mode-hook 'go-eldoc-setup)
 
+(require 'auto-complete)
 (require 'go-autocomplete)
 (require 'auto-complete-config)
 (setq gofmt-command "goimports")
@@ -471,6 +468,15 @@ Thankfully, emacs has nifty ways of building that stuff in.
   (epa-file-enable)
   (setq epg-gpg-program "gpg")
 #+end_src
+*** Text Expansion
+It's often quite useful to have a snippet of text expand into a larger
+block of text. This could be something like lorem ipsum, or often used
+functions. ~yasnippet~ provides that.
+
+#+begin_src emacs-lisp :tangle yes
+   (yas-global-mode 1)
+#+end_src
+
 *** Flymake
 Navigating around flymake bits is a bit of a pain. This makes things a little easier.
 #+begin_src emacs-lisp :tangle yes
@@ -785,6 +791,7 @@ them.
    '(google-imports-file-for-tag (quote (("ServiceException" . "javax.xml.rpc.ServiceException") ("MalformedURLException" . "java.net.MalformedURLException") ("URL" . "java.net.URL") ("Named" . "com.google.inject.name.Named") ("Inject" . "com.google.inject.Inject") ("FormattingLogger" . "java/com/google/common/logging/FormattingLogger.java"))))
    '(grok-auto-patch-buffers t)
    '(grok-sloppy-editing t)
+   '(scss-compile-at-save nil) ; don't compile scss files after saving them.
    '(menu-bar-mode nil)
    '(minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
    '(safe-local-variable-values (quote ((virtualenv-default-directory . "/Users/justinlilly/src/prbot/") (virtualenv-workon . "prbot") (Mode . js))))
