@@ -224,6 +224,13 @@ contents in a new buffer names ~*test*~.
       ;; TODO: Add $PATH to exec-path
       nil)
   
+  (add-hook 'eshell-mode-hook (lambda ()
+                                ; strips color from eshell, which isn't smart (or fast) about rendering them
+                                ; it's also buffer-local
+                                (add-hook 'eshell-preoutput-filter-functions
+                                          'ansi-color-filter-apply)))
+
+
   ;;; Necessary to make some modes aware of binaries, such as sql-mysql
   (push "/usr/local/bin" exec-path)
   
