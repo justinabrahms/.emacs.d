@@ -45,13 +45,12 @@ install them.
                               ;; something in ESK is breaking ido for me
                               ;; starter-kit-lisp starter-kit-js starter-kit-eshell
                               scratch dizzee ctags-update virtualenv websocket znc
-                              pastels-on-dark-theme textmate pony-mode slime
+                              pastels-on-dark-theme pony-mode slime
                               idle-highlight-mode flymake-cursor dired-single
                               flymake-less less-css-mode css-eldoc
                               pastels-on-dark-theme textmate pony-mode
                               fill-column-indicator flycheck
-                              auto-complete yasnippet
-
+                              auto-complete yasnippet cider
                               go-mode go-eldoc go-autocomplete ; golang
                               )
     "A list of packages to ensure are installed at launch.")
