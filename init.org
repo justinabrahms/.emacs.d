@@ -692,6 +692,8 @@ reason (I already feel ashamed. Let's not talk about it.) Others are
 temporary. The rest are so small, I didn't have much to say about
 them.
 #+begin_src emacs-lisp :tangle yes
+  (textmate-mode)
+
   (setq path-to-etags "/Applications/Emacs.app/Contents/MacOS/bin/etags")
   
   (defun create-tags (dir-name)
