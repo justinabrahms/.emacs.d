@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: js-super
+# key: super
+# type: snippet
+# --
+${0:View}.prototype.$1.apply(this, arguments);

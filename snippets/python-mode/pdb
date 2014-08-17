@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: inserts python debug statement
+# key: pdb
+# type: snippet
+# --
+import pdb; pdb.set_trace() # @@@ FIXME
