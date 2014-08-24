@@ -12,3 +12,4 @@ backups/
 eshell/history
 eshell/lastdir
 auto-save-list/
+/init.el
