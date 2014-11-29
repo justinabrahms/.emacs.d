@@ -46,12 +46,16 @@ install them.
                               ;; starter-kit-lisp starter-kit-js starter-kit-eshell
                               scratch dizzee ctags-update virtualenv websocket znc
                               pastels-on-dark-theme pony-mode slime
-                              idle-highlight-mode flymake-cursor dired-single
-                              flymake-less less-css-mode css-eldoc
+                              idle-highlight-mode flymake-cursor 
+                              dired-single dired+
+
+                              css-eldoc
+                              web-mode  ;; edit html templates
                               pastels-on-dark-theme textmate pony-mode
                               fill-column-indicator flycheck
                               auto-complete yasnippet cider
                               go-mode go-eldoc go-autocomplete ; golang
+                              python-mode
                               )
     "A list of packages to ensure are installed at launch.")
   
@@ -418,7 +422,6 @@ rather than 4.
 
 Linting is important in all languages, even CSS.
 #+begin_src emacs-lisp :tangle yes
-(require 'flymake-less)
 (require 'css-eldoc)
 #+end_src
 
@@ -718,14 +721,10 @@ them.
   
   
   ;;; hooks
+  (require 'dired+)
   (require 'dired-x)
   (add-hook 'dired-mode-hook (lambda ()
                                (dired-omit-mode 1)))
-  
-  ;; Fantastic dired thing which will hide most `ls -l` output. 
-  ;; ) and ( to toggle it
-  (require 'dired-details)
-  (dired-details-install)
   
   ;; scala
   (let ((ensime-load-path "~/src/ensime/elisp/")
