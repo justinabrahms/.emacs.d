@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: inserts js debug statement
+# key: pdb
+# type: snippet
+# --
+debugger; // @@@ FIXME
