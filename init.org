@@ -49,6 +49,7 @@ install them.
                               idle-highlight-mode flymake-cursor 
                               dired-single dired+
 
+                              flx-ido ;; better fuzzy matching
                               css-eldoc
                               web-mode  ;; edit html templates
                               pastels-on-dark-theme textmate pony-mode
@@ -91,8 +92,10 @@ inline.
 (desktop-save-mode 1) ;; auto-save buffer state on close for a later time.
 (setq abbrev-file-name "~/.emacs.d/abbrev_defs") ;; where to save auto-replace maps
 
-(ido-mode t);; fuzzy matching on find-file, buffer switch
+(ido-mode t) ;; fuzzy matching on find-file, buffer switch
+(flx-ido-mode t) ;; better fuzzy matching
 (setq ido-enable-flex-matching t)
+(setq ido-use-faces nil)  ;; use flx highlights instead
 (add-to-list 'ido-ignore-files "\\.pyc")
 
 ;; colorize the output of the compilation mode.
