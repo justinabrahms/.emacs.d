@@ -48,8 +48,8 @@ install them.
                               pastels-on-dark-theme pony-mode slime
                               idle-highlight-mode flymake-cursor 
                               dired-single dired+
-
                               flx-ido ;; better fuzzy matching
+                              sass-mode ;; sass syntax highlighting
                               css-eldoc
                               web-mode  ;; edit html templates
                               pastels-on-dark-theme textmate pony-mode
