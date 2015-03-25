@@ -40,17 +40,19 @@ install them.
   (when (not package-archive-contents)
     (package-refresh-contents))
   
-  (defvar my-packages '(magit clojure-mode clojure-test-mode dedicated elisp-cache
+  (defvar my-packages '(magit clojure-mode dedicated elisp-cache
                               org paredit protobuf-mode rainbow-delimiters scpaste
                               ;; something in ESK is breaking ido for me
                               ;; starter-kit-lisp starter-kit-js starter-kit-eshell
-                              scratch dizzee ctags-update virtualenv websocket znc
+                              scratch dizzee ctags-update virtualenvwrapper websocket znc
                               pastels-on-dark-theme pony-mode slime
                               idle-highlight-mode flymake-cursor 
                               dired-single dired+
                               flx-ido ;; better fuzzy matching
-                              sass-mode ;; sass syntax highlighting
+                              scss-mode ;; sass syntax highlighting
                               css-eldoc
+                              js2-mode ;; better javascript mode w/ jsx support
+                              yaml-mode
                               web-mode  ;; edit html templates
                               pastels-on-dark-theme textmate pony-mode
                               fill-column-indicator flycheck
@@ -58,6 +60,8 @@ install them.
                               go-mode go-eldoc go-autocomplete ; golang
                               htmlize ;; blog publishing
                               python-mode
+                              zencoding-mode ;; html expansion
+                              rbenv
                               )
     "A list of packages to ensure are installed at launch.")
   
@@ -180,11 +184,12 @@ Virtualenv is a tool in the python community which sorts out your
 python package dependencies into their own contained enviroments. This
 is similar to RVM and friends in the ruby community. virtualenv-mode
 is a mode which helps you operate within these from within emacs. It
-is pretty good. My one complaint is that it doesn't set the proper
-environment within eshell. 
+is pretty good.
 #+begin_src emacs-lisp :tangle yes
-  ;; TODO(justinlilly): setup the proper virtualenv info in eshell
-  (setq virtualenv-workon-starts-python nil)
+  (require 'virtualenvwrapper)
+  (venv-initialize-interactive-shells)
+  (venv-initialize-eshell)
+  (setq venv-location (expand-file-name "~/.virtualenvs/"))
 #+end_src
 
 Pony-mode is a Django helper mode which gives you access to many neat
@@ -428,6 +433,13 @@ Linting is important in all languages, even CSS.
 #+begin_src emacs-lisp :tangle yes
 (require 'css-eldoc)
 #+end_src
+
+Setup scss bits.
+#+begin_src emacs-lisp :tangle yes
+(add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
+(setq scss-sass-command (expand-file-name "~/.rbenv/shimes/sass"))
+#+end_src
+
 
 
 web-mode is an interesting new mode which bridges the gap with
@@ -689,6 +701,16 @@ Makefile. One of these days, I'll bother to go hunting for a better
 build tool that's installed on every system always.
 #+begin_src emacs-lisp :tangle yes
 (setq org-src-preserve-indentation t)
+#+end_src
+
+** Ruby
+I have a tiny amount of ruby I use at work. Mostly executing simple
+things like berkshelf commands or compass things. This is likely not
+useful for real rubyists.
+
+#+begin_src emacs-lisp :tangle yes
+(setq rbenv-installation-dir "/usr/local/Cellar/rbenv/0.4.0/")
+(setq rbenv-show-active-ruby-in-modeline nil)
 #+end_src
 
 ** Undocumented
